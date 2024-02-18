@@ -1,6 +1,7 @@
 ## Mục lục
 - [I. HTTP Protocol](#i-http-protocol)
 - [II. SSR & CSR](#ii-ssr--csr)
+- [III. Cài đặt](#iii-cài-đặt)
 
 ## I. HTTP Protocol
 [:arrow_up: Mục lục](#mục-lục)
@@ -11,7 +12,7 @@ HTTP (HyperText Transfer Protocol - Giao thức truyền tải siêu văn bản)
 
 _Ví dụ:_
 
-![image](https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/7923ee35-bbb9-49ad-b817-1ce66ecb2e41)
+<img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/7923ee35-bbb9-49ad-b817-1ce66ecb2e41" width="500px">
 
 ### 1. HTTP Request methods
 [:arrow_up: Mục lục](#mục-lục)
@@ -88,3 +89,144 @@ CSR (Client Side Rendering)
 ![image](https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/8281142b-4943-463d-bfbc-9884c5d48dd3)
 
 Trang web hiển thị ít code hơn là một dấu hiệu sử dụng CSR (trả từ phía người dùng). Chú ý thẻ `<main id="main"></main>` là nơi mà JavaScript sẽ render ra đoạn mã HTML, CSS trong đó.
+
+## III. Cài đặt
+[:arrow_up: Mục lục](#mục-lục)
+
+### 1. Cài đặt NodeJS
+[:arrow_up: Mục lục](#mục-lục)
+
+Cài đặt tại trang web https://nodejs.org/en/download/current
+
+hoặc tham khảo cách cài bằng câu lệnh
+
+### 2. Cài đặt ExpressJS
+[:arrow_up: Mục lục](#mục-lục)
+
+_Step 1:_ Khởi tạo `package.json`
+
+```
+npm init
+```
+
+_Step 2:_ Install
+
+```
+npm install express
+```
+
+File `package.json`
+
+<img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/d0b826d8-2a1c-4d45-ae19-65b3635fc98d" width="500px">
+
+Chú ý `dependencies` là nơi lưu trữ thông tin những phụ thuộc (hiểu đơn giản là thư viện cần dùng)
+
+File `package-lock.json` là nơi lưu trữ thông tin những phụ thuộc của phụ thuộc (hiểu đơn giản là trong `express` sẽ có thể phụ thuộc với nhiều thứ viện khác). 
+
+<img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/4dff0868-9805-419d-b5cc-4fb11bec4c78" width="500px">
+
+_Step 3:_ Chạy chương trình đầu tiên bằng câu lệnh `node index.js`
+
+```js
+const express = require("express"); // Nhập các module hoặc thư viện từ các tệp khác
+const app = express(); // Trả về đối tượng
+const port = 3000; // Port
+
+// Route
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}/`);
+});
+```
+
+<img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/d1c5020b-c77e-4de9-a0a8-9817a82847a0" width="500px">
+
+### 3. Cài đặt Nodemon & inspector
+[:arrow_up: Mục lục](#mục-lục)
+
+- **Nodemon** giúp lắng nghe sự thay đổi của file trong quá trình phát triển (dev)
+
+_Step 1:_ Install
+
+```
+npm install nodemon --save-dev
+```
+
+_Step 2:_ Cách sử dụng
+
+Cách 1: Chạy trực tiếp
+
+```
+nodemon index.js
+```
+
+Cách 2: Gán vào lệnh `script` trong `package.json` như sau:
+
+![image](https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/d6ff8d77-db75-4340-aa11-9a390b2877a0)
+
+```
+npm start
+```
+
+- **inspector** dùng để debug code
+
+_Step 1:_ Cách sử dụng
+
+Cách 1: Chạy trực tiếp
+
+```
+nodemon --inspect index.js
+```
+
+Cách 2: Gán vào lệnh `script` trong `package.json` như sau:
+
+![image](https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/3d21c7ca-7bae-46ec-8958-3332203ee1ac)
+
+```
+npm start
+```
+
+_Step 2:_ Bấm vào biểu tượng màu xanh lá
+
+<img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/4935419e-0e7e-4173-aebc-0c86d8cdb69e" width="500px">
+
+Thực hiện Debug tại đây: 
+
+<img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/d6413e3b-aedf-458b-8ab8-ff7a4f30d783" width="500px">
+
+### 4. Cài đặt Morgan
+[:arrow_up: Mục lục](#mục-lục)
+
+Morgan dùng để logger các HTTP request
+
+_Step 1:_ Cài đặt
+
+```
+npm install morgan --save-dev
+```
+
+_Step 2:_ Viết vào file `index.js` 
+
+```js
+const express = require("express"); 
+const app = express(); 
+const morgan = require('morgan'); // Viết thêm vào đây
+const port = 3000; 
+
+app.use(morgan('combined')); // Viết thêm vào đây
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}/`);
+});
+```
+
+Kết quả: Giúp xem được request HTTP
+
+![image](https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/f7ff900e-660e-4c6d-b366-b5d907312cc1)
