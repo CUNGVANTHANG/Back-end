@@ -103,6 +103,8 @@ hoặc tham khảo cách cài bằng câu lệnh
 ### 2. Cài đặt ExpressJS
 [:arrow_up: Mục lục](#mục-lục)
 
+Tham khảo thêm tại đây https://www.npmjs.com/package/express
+
 _Step 1:_ Khởi tạo `package.json`
 
 ```
@@ -146,6 +148,8 @@ app.listen(port, () => {
 
 ### 3. Cài đặt Nodemon & inspector
 [:arrow_up: Mục lục](#mục-lục)
+
+Tham khảo thêm tại đây https://www.npmjs.com/package/nodemon
 
 - **Nodemon** giúp lắng nghe sự thay đổi của file trong quá trình phát triển (dev)
 
@@ -200,6 +204,8 @@ Thực hiện Debug tại đây:
 ### 4. Cài đặt Morgan
 [:arrow_up: Mục lục](#mục-lục)
 
+Tham khảo thêm tại đây https://www.npmjs.com/package/morgan
+
 Morgan dùng để logger các HTTP request
 
 _Step 1:_ Cài đặt
@@ -230,3 +236,89 @@ app.listen(port, () => {
 Kết quả: Giúp xem được request HTTP
 
 ![image](https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/f7ff900e-660e-4c6d-b366-b5d907312cc1)
+
+### 5. Cài đặt Handlebars
+[:arrow_up: Mục lục](#mục-lục)
+
+Tham khảo thêm tại đây https://www.npmjs.com/package/express-handlebars
+
+**Handlebars** này giúp ta quản lý file HTML/CSS dễ dàng hơn thay vì viết trực tiếp vào như này (khiến rất khó quản lý và viết code)
+
+```js
+app.get("/", (req, res) => {
+  res.send("<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>");
+});
+```
+
+Ngoài **Handlebars** ra còn có **Pug** tham khảo tại https://www.npmjs.com/package/pug
+
+_Step 1:_ Cài đặt handlebars
+
+```
+npm install express-handlebars
+```
+
+Cấu trúc thư mục
+
+```
+.
+├── index.js
+└── views
+    ├── home.handlebars
+    └── layouts // Nơi viết những thành phần chung
+        └── main.handlebars
+```
+
+_Step 2:_ Ví dụ 
+
+Cấu trúc thư mục: 
+
+![image](https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/34aa277d-ff3b-4441-8f64-b713b3f953bb)
+
+```js
+const express = require("express");
+const morgan = require("morgan");
+const handlebars = require("express-handlebars");
+const path = require("path");
+
+const app = express();
+const port = 3000;
+
+// HTTP logger
+app.use(morgan("combined"));
+
+// Template engine
+app.engine(
+  "hbs",
+  handlebars.engine({
+    extname: ".hbs", // Cấu hình đổi tên .handlebars thành .hbs
+  })
+);
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "resources/views")); // __dirname là đường dẫn hiện tại
+// Sử dụng join để nối tới views
+
+// Router
+app.get("/", (req, res) => {
+  res.render("home"); // Render ra giao diện
+});
+
+app.get("/news", (req, res) => {
+  res.render("news");
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}/`);
+});
+```
+
