@@ -1,9 +1,16 @@
 ## Mục lục
+
+<details>
+  <summary>Kiến thức cốt lõi</summary>
+
 - [I. HTTP Protocol](#i-http-protocol)
 - [II. SSR & CSR](#ii-ssr--csr)
 - [III. Cài đặt](#iii-cài-đặt)
 
+</details>
+
 ## I. HTTP Protocol
+
 [:arrow_up: Mục lục](#mục-lục)
 
 _Tham khảo tại đây_: https://vi.wikipedia.org/wiki/Hypertext_Transfer_Protocol\
@@ -15,6 +22,7 @@ _Ví dụ:_
 <img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/7923ee35-bbb9-49ad-b817-1ce66ecb2e41" width="500px">
 
 ### 1. HTTP Request methods
+
 [:arrow_up: Mục lục](#mục-lục)
 
 - **GET**: GET được sử dụng để lấy lại thông tin từ máy chủ đã cung cấp bởi sử dụng một URI đã cung cấp. Các yêu cầu sử dụng GET chỉ nhận dữ liệu và không có ảnh hưởng gì tới dữ liệu.
@@ -27,6 +35,7 @@ _Ví dụ:_
 - **TRACE**: Trình bày một vòng lặp kiểm tra thông báo song song với path tới nguồn mục tiêu.
 
 ### 2. HTTP Response
+
 [:arrow_up: Mục lục](#mục-lục)
 
 Khi nhận và phiên dịch một HTTP Request, máy chủ sẽ gửi tín hiệu phản hồi là một HTTP Response bao gồm các thành phần sau:
@@ -37,28 +46,24 @@ Khi nhận và phiên dịch một HTTP Request, máy chủ sẽ gửi tín hi�
 - Một phần thân thông báo tùy ý
 
 ```html
-HTTP/1.1 200 OK
-Date: Mon, ngày 23 tháng 5 năm 2005 22:38:34 GMT
-Content-Type: text/html; charset=UTF-8
-Content-Encoding: UTF-8
-Content-Length: 138
-Last-Modified: Wed, 08 Jan 2003 23:11:55 GMT
-Server: Apache/1.3.3.7 (Unix) (Red-Hat/Linux)
-ETag: "3f80f-1b6-3e1cb03b"
-Accept-Ranges: bytes
-Connection: close
+HTTP/1.1 200 OK Date: Mon, ngày 23 tháng 5 năm 2005 22:38:34 GMT Content-Type:
+text/html; charset=UTF-8 Content-Encoding: UTF-8 Content-Length: 138
+Last-Modified: Wed, 08 Jan 2003 23:11:55 GMT Server: Apache/1.3.3.7 (Unix)
+(Red-Hat/Linux) ETag: "3f80f-1b6-3e1cb03b" Accept-Ranges: bytes Connection:
+close
 
 <html>
-<head>
-  <title>An Example Page</title>
-</head>
-<body>
-  Hello World, this is a very simple HTML document.
-</body>
+  <head>
+    <title>An Example Page</title>
+  </head>
+  <body>
+    Hello World, this is a very simple HTML document.
+  </body>
 </html>
 ```
 
 ### 3. HTTP Status Code
+
 [:arrow_up: Mục lục](#mục-lục)
 
 - **1xx**: Thông tin
@@ -68,9 +73,11 @@ Connection: close
 - **5xx**: Lỗi Server
 
 ## II. SSR & CSR
+
 [:arrow_up: Mục lục](#mục-lục)
 
 ### 1. SSR
+
 [:arrow_up: Mục lục](#mục-lục)
 
 SSR (Sever Side Rendering)
@@ -82,6 +89,7 @@ _Ví dụ:_
 Trang web hiển thị nhiều dòng code HTML, CSS có sẵn (trả từ phía Sever), không phải do JavaScript render ra.
 
 ### 2. CSR
+
 [:arrow_up: Mục lục](#mục-lục)
 
 CSR (Client Side Rendering)
@@ -91,9 +99,11 @@ CSR (Client Side Rendering)
 Trang web hiển thị ít code hơn là một dấu hiệu sử dụng CSR (trả từ phía người dùng). Chú ý thẻ `<main id="main"></main>` là nơi mà JavaScript sẽ render ra đoạn mã HTML, CSS trong đó.
 
 ## III. Cài đặt
+
 [:arrow_up: Mục lục](#mục-lục)
 
 ### 1. Cài đặt NodeJS
+
 [:arrow_up: Mục lục](#mục-lục)
 
 Cài đặt tại trang web https://nodejs.org/en/download/current
@@ -101,6 +111,7 @@ Cài đặt tại trang web https://nodejs.org/en/download/current
 hoặc tham khảo cách cài bằng câu lệnh
 
 ### 2. Cài đặt ExpressJS
+
 [:arrow_up: Mục lục](#mục-lục)
 
 Tham khảo thêm tại đây https://www.npmjs.com/package/express
@@ -123,7 +134,7 @@ File `package.json`
 
 Chú ý `dependencies` là nơi lưu trữ thông tin những phụ thuộc (hiểu đơn giản là thư viện cần dùng)
 
-File `package-lock.json` là nơi lưu trữ thông tin những phụ thuộc của phụ thuộc (hiểu đơn giản là trong `express` sẽ có thể phụ thuộc với nhiều thứ viện khác). 
+File `package-lock.json` là nơi lưu trữ thông tin những phụ thuộc của phụ thuộc (hiểu đơn giản là trong `express` sẽ có thể phụ thuộc với nhiều thứ viện khác).
 
 <img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/4dff0868-9805-419d-b5cc-4fb11bec4c78" width="500px">
 
@@ -147,6 +158,7 @@ app.listen(port, () => {
 <img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/d1c5020b-c77e-4de9-a0a8-9817a82847a0" width="500px">
 
 ### 3. Cài đặt Nodemon & inspector
+
 [:arrow_up: Mục lục](#mục-lục)
 
 Tham khảo thêm tại đây https://www.npmjs.com/package/nodemon
@@ -197,11 +209,12 @@ _Step 2:_ Bấm vào biểu tượng màu xanh lá
 
 <img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/4935419e-0e7e-4173-aebc-0c86d8cdb69e" width="500px">
 
-Thực hiện Debug tại đây: 
+Thực hiện Debug tại đây:
 
 <img src="https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/d6413e3b-aedf-458b-8ab8-ff7a4f30d783" width="500px">
 
 ### 4. Cài đặt Morgan
+
 [:arrow_up: Mục lục](#mục-lục)
 
 Tham khảo thêm tại đây https://www.npmjs.com/package/morgan
@@ -214,15 +227,15 @@ _Step 1:_ Cài đặt
 npm install morgan --save-dev
 ```
 
-_Step 2:_ Viết vào file `index.js` 
+_Step 2:_ Viết vào file `index.js`
 
 ```js
-const express = require("express"); 
-const app = express(); 
-const morgan = require('morgan'); // Viết thêm vào đây
-const port = 3000; 
+const express = require("express");
+const app = express();
+const morgan = require("morgan"); // Viết thêm vào đây
+const port = 3000;
 
-app.use(morgan('combined')); // Viết thêm vào đây
+app.use(morgan("combined")); // Viết thêm vào đây
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -238,6 +251,7 @@ Kết quả: Giúp xem được request HTTP
 ![image](https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/f7ff900e-660e-4c6d-b366-b5d907312cc1)
 
 ### 5. Cài đặt Handlebars
+
 [:arrow_up: Mục lục](#mục-lục)
 
 Tham khảo thêm tại đây https://www.npmjs.com/package/express-handlebars
@@ -254,7 +268,7 @@ app.get("/", (req, res) => {
     <title>Document</title>
 </head>
 <body>
-    
+
 </body>
 </html>");
 });
@@ -279,9 +293,9 @@ Cấu trúc thư mục
         └── main.handlebars
 ```
 
-_Step 2:_ Ví dụ 
+_Step 2:_ Ví dụ
 
-Cấu trúc thư mục: 
+Cấu trúc thư mục:
 
 ![image](https://github.com/CUNGVANTHANG/NodeJS/assets/96326479/34aa277d-ff3b-4441-8f64-b713b3f953bb)
 
@@ -322,3 +336,48 @@ app.listen(port, () => {
 });
 ```
 
+### 6. Cài đặt node-sass
+
+[:arrow_up: Mục lục](#mục-lục)
+
+_Step 1:_ Cài đặt node-sass
+
+```
+npm install node-sass --save-dev
+```
+
+_Step 2:_ Static file sử dụng
+
+```js
+app.use(express.static(path.join(__dirname, "public")));
+```
+
+_Cách set up nodemon:_
+
+Tạo file `nodemon.json` rồi set up như sau để lắng nghe sự thay đổi của các file
+
+```json
+{
+  "ext": "js json"
+}
+```
+
+_Cách set up chạy node-sass:_
+
+Trong `package.json` ta set up như sau:
+
+```json
+"scripts": {
+    "start": "nodemon --inspect src/index.js",
+    "watch": "node-sass --watch src/resources/scss/ --output src/public/css/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+```
+
+ta đã thêm `"watch": "node-sass --watch src/resources/scss/ --output src/public/css/"` giúp cho lắng nghe sự thay đổi của tất cả file trong thư mục `scss`
+
+## IV. Kiến thức cốt lõi
+[:arrow_up: Mục lục](#mục-lục)
+
+### 1. Basic Routing
+Định tuyến đề cập đến việc xác định cách ứng dụng phản hồi yêu cầu của máy khách tới điểm cuối cụ thể, đó là URI (hoặc đường dẫn) và phương thức yêu cầu HTTP cụ thể (**GET**, POST, v.v.).
