@@ -380,4 +380,103 @@ ta đã thêm `"watch": "node-sass --watch src/resources/scss/ --output src/publ
 [:arrow_up: Mục lục](#mục-lục)
 
 ### 1. Basic Routing
-Định tuyến đề cập đến việc xác định cách ứng dụng phản hồi yêu cầu của máy khách tới điểm cuối cụ thể, đó là URI (hoặc đường dẫn) và phương thức yêu cầu HTTP cụ thể (**GET**, POST, v.v.).
+[:arrow_up: Mục lục](#mục-lục)
+
+Tham khảo tại đây: [https://expressjs.com/en/starter/basic-routing.html](https://expressjs.com/en/starter/basic-routing.html)
+
+Định tuyến đề cập đến việc xác định cách ứng dụng phản hồi (response) yêu cầu (request) của máy khách tới điểm cuối cụ thể, đó là **URI** (hoặc đường dẫn) và phương thức yêu cầu **HTTP** cụ thể (**GET**, **POST**, v.v.).
+
+Định nghĩa tuyến đường có cấu trúc như sau:
+
+```
+app.METHOD(PATH, HANDLER)
+```
+
+Trong đó:
+
+- `app` là một ví dụ của express.
+- `METHOD` là phương thức yêu cầu HTTP, viết thường.
+- `PATH` là một đường dẫn trên máy chủ.
+- `HANDLER` là hàm được thực thi khi tuyến đường được khớp.
+
+Phản hồi `Hello World!` trên trang chủ:
+
+```js
+app.get('/', (req, res) => {
+  res.send('Hello World!')
+})
+```
+
+Phản hồi yêu cầu **POST** trên tuyến gốc (`/`), trang chủ của ứng dụng:
+
+```js
+app.post('/', (req, res) => {
+  res.send('Got a POST request')
+})
+```
+
+Phản hồi yêu cầu **PUT** tới tuyến đường `/user`:
+
+```js
+app.put('/user', (req, res) => {
+  res.send('Got a PUT request at /user')
+})
+```
+
+Phản hồi yêu cầu **DELETE** tuyến đường `/user`:
+
+```js
+app.delete('/user', (req, res) => {
+  res.send('Got a DELETE request at /user')
+})
+```
+
+### 2. Query parameters
+[:arrow_up: Mục lục](#mục-lục)
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/26a80f16-d389-42e1-8834-a6d999e8f81e)
+
+Khi chúng ta thực hiện hành vi search trên google thì bản chất là nó điều hướng người dùng sang 1 trang web có địa chỉ là `https://www.google.com/search?q=f8%20hoc%20lap%20trinh`
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/cc14f419-1d74-4ed7-a2d3-b7fc2c4492d1)
+
+Giống như ta có thể nhập trực tiếp thì kết quả đem lại cũng như vậy
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/dc74e9e5-be1a-43fa-9f46-c987263af24e)
+
+Query parameters thường sử dụng **METHOD GET**
+
+_1 ví dụ khác:_
+
+```
+https://www.google.com/search?q=f8%20hoc%20lap%20trinh&author=sondn
+```
+
+Các params sẽ được phân cách bằng `&` như trên, trả về 1 đối tượng như sau:
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/d462c048-9220-4f5b-9a0c-c1971610530e)
+
+### 3. Hành vi mặc định của form
+[:arrow_up: Mục lục](#mục-lục)
+
+```html
+<div class="mt-4">
+<form>
+  <div class="form-group">
+    <label for="search-input">Từ khóa</label>
+    <input type="text" name="q" class="form-control" id="search-input" placeholder="Nhập từ khóa">
+  </div>
+  
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+</div>
+```
+
+Chú ý phải có `name="q"` thì mới thực hiện được hành vi mặc định của form. Chính là khi ta nhập từ khóa rồi bấm submit.
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/aa00dd19-ced1-4fee-a9ff-094b8a4128c0)
+
+Ta nhận được query parameters như sau:
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/2406ff55-c2d7-4375-ae78-5cf899d0f2f6)
+
