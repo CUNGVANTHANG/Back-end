@@ -4,8 +4,32 @@
   <summary>Kiến thức cốt lõi</summary>
 
 - [I. HTTP Protocol](#i-http-protocol)
+  - [1. HTTP Request methods](#1-http-request-methods)
+  - [2. HTTP Response](#2-http-response)
+  - [3. HTTP Status Code](#3-http-status-code)
 - [II. SSR & CSR](#ii-ssr--csr)
+  - [1. SSR](#1-ssr)
+  - [2. CSR](#2-csr)
 - [III. Cài đặt](#iii-cài-đặt)
+  - [1. Cài đặt NodeJS](#1-cài-đặt-nodejs)
+  - [2. Cài đặt ExpressJS](#2-cài-đặt-expressjs)
+  - [3. Cài đặt Nodemon & inspector](#3-cài-đặt-nodemon--inspector)
+  - [4. Cài đặt Morgan](#4-cài-đặt-morgan)
+  - [5. Cài đặt Handlebars](#5-cài-đặt-handlebars)
+  - [6. Cài đặt node-sass](#6-cài-đặt-node-sass)
+- [IV. Kiến thức cốt lõi](#iv-kiến-thức-cốt-lõi)
+  - [1. Basic Routing](#1-basic-routing)
+  - [2. Query parameters](#2-query-parameters)
+  - [3. Hành vi mặc định của form](#3-hành-vi-mặc-định-của-form)
+  - [4. POST method](#5-post-method)
+
+</details>
+
+<details>
+  <summary>Xây dựng website</summary>
+
+- [I. MVC](#i-mvc)
+  - [1. Routes & Controllers](#1-routes--controllers)
 
 </details>
 
@@ -480,3 +504,233 @@ Ta nhận được query parameters như sau:
 
 ![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/2406ff55-c2d7-4375-ae78-5cf899d0f2f6)
 
+
+### 4. POST method
+[:arrow_up: Mục lục](#mục-lục)
+
+Muốn sử dụng phương thức `POST` ta phải thêm `method="POST"` như sau
+
+```html
+<div class="mt-4">
+<form method="POST">
+  <div class="form-group">
+    <label for="search-input">Từ khóa</label>
+    <input type="text" name="q" class="form-control" id="search-input" placeholder="Nhập từ khóa">
+  </div>
+
+  <div class="form-group">
+    <label for="gender-input">Từ khóa</label>
+    <select name="gender" class="form-control" id="gender-input">
+      <option value="">-- Chọn giới tính --</option>
+      <option value="male">Nam</option>
+      <option value="female">Nữ</option>
+
+    </select>
+  </div>
+  
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+</div>
+```
+
+Khi bấm submit ra sẽ được kết quả ở **Form Data**
+
+<img src="https://github.com/CUNGVANTHANG/Back-end/assets/96326479/c183d92d-522e-4cd0-9058-44e182061329" height=200px>
+
+## I. MVC
+[:arrow_up: Mục lục](#mục-lục)
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/2c434bf7-07d4-498c-978b-c31f6f724ed4)
+
+3 thành phần chính: `Model`, `View`, `Controller`
+
+**Browser** chính là client
+
+Còn lại sẽ là về phía Server
+
+### 1. Routes & Controllers
+[:arrow_up: Mục lục](#mục-lục)
+
+Hiểu đơn giản cơ chế hoạt động: 
+
+```
+Browser(client) --> Web server --> Routes (Tuyến đường) --> Dispatcher (GET, POST, PUT...) --> Function Handler (Controller)
+.........................Action.......................  --> Dispatcher (GET, POST, PUT...) --> Function Handler (Controller)
+```
+
+_Ví dụ:_ Biến đổi đoạn code này sang sử dụng mô hình MVC
+
+```js
+// index.js
+const path = require("path");
+const express = require("express");
+const morgan = require("morgan");
+const handlebars = require("express-handlebars");
+
+const app = express();
+const port = 3000;
+
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+app.use(express.json());
+
+// HTTP logger
+app.use(morgan("combined"));
+
+// Template engine
+app.engine(
+  "hbs",
+  handlebars.engine({
+    extname: ".hbs", // Cấu hình đổi tên .handlebars thành .hbs
+  })
+);
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "resources/views")); // __dirname là đường dẫn hiện tại
+// Sử dụng join để nối tới views
+
+// Router
+app.get("/", (req, res) => {
+  res.render("home"); // Render ra giao diện
+});
+
+app.get("/news", (req, res) => {
+  res.render("news");
+});
+
+app.get("/search", (req, res) => {
+  res.render("search");
+});
+
+app.post("/search", (req, res) => {
+  console.log(req.body);
+  res.send("");
+});
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}/`);
+});
+```
+
+Cấu trúc thư mục: 
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/be174b6a-38cf-4b3f-9146-6a03d1514685)
+
+Sau khi biến đổi:
+
+```js
+// index.js
+const path = require("path");
+const express = require("express");
+const morgan = require("morgan");
+const handlebars = require("express-handlebars");
+
+const app = express();
+const port = 3000;
+
+const route = require("./routes");
+
+app.use(express.static(path.join(__dirname, "public")));
+
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+app.use(express.json());
+
+// HTTP logger
+app.use(morgan("combined"));
+
+// Template engine
+app.engine(
+  "hbs",
+  handlebars.engine({
+    extname: ".hbs", // Cấu hình đổi tên .handlebars thành .hbs
+  })
+);
+app.set("view engine", "hbs");
+app.set("views", path.join(__dirname, "resources/views")); // __dirname là đường dẫn hiện tại
+// Sử dụng join để nối tới views
+
+// Routes init
+route(app);
+
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}/`);
+});
+```
+
+```js
+// app/controller/NewsController
+class NewsController {
+  // [GET] /news
+  index(req, res) {
+    res.render("news");
+  }
+
+  // [GET] /news/:slug
+  show(req, res) {
+    res.send("NEWS DETAIL!!!");
+  }
+}
+
+module.exports = new NewsController();
+
+
+// app/controller/SiteController
+class SiteController {
+  // [GET] /
+  index(req, res) {
+    res.render("home");
+  }
+
+  // [GET] /search
+  search(req, res) {
+    res.render("search");
+  }
+}
+
+module.exports = new SiteController();
+```
+
+```js
+// routes/index.js
+const newsRouter = require("./news");
+const siteRouter = require("./site");
+
+function route(app) {
+  app.use("/news", newsRouter);
+  app.use("/", siteRouter);
+}
+
+module.exports = route;
+
+
+// routes/news.js
+const express = require("express");
+const router = express.Router();
+
+const newsController = require("../app/controller/NewsController");
+
+router.use("/:slug", newsController.show);
+router.use("/", newsController.index);
+
+module.exports = router;
+
+
+// routes/site.js
+const express = require("express");
+const router = express.Router();
+
+const siteController = require("../app/controller/SiteController");
+
+router.use("/search", siteController.search);
+router.use("/", siteController.index);
+
+module.exports = router;
+```
