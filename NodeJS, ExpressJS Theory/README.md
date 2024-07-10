@@ -244,7 +244,7 @@ Thực hiện Debug tại đây:
 
 Tham khảo thêm tại đây https://www.npmjs.com/package/morgan
 
-Morgan dùng để logger các HTTP request
+**Morgan** dùng để logger các HTTP request
 
 _Step 1:_ Cài đặt
 
@@ -365,6 +365,8 @@ app.listen(port, () => {
 
 [:arrow_up: Mục lục](#mục-lục)
 
+**node-sass** dùng để viết sass (.scss)
+
 _Step 1:_ Cài đặt node-sass
 
 ```
@@ -432,17 +434,79 @@ mongod --dbpath [Đường_dẫn_thư_mục]
 ### 8. Cài đặt prettier, lint-staged, husky
 [:arrow_up: Mục lục](#mục-lục)
 
-Nguồn:
+**Nguồn:**
 
-1. [prettier](https://github.com/prettier/prettier)
-2. [lint-staged](https://github.com/lint-staged/lint-staged)
-3. [husky](https://github.com/typicode/husky)
+1. [prettier](https://github.com/prettier/prettier) dùng để format code cho đẹp hơn
+2. [lint-staged](https://github.com/lint-staged/lint-staged) giúp tự động thực hiện kiểm tra mã nguồn và sửa lỗi (linting) chỉ trên các file đã thay đổi (staged files) trong Git
+3. [husky](https://github.com/typicode/husky) giúp bạn dễ dàng quản lý và sử dụng Git hooks trong dự án của mình. Git hooks là các đoạn mã script được chạy tự động khi các sự kiện cụ thể xảy ra trong quá trình làm việc với Git, chẳng hạn như commit, push, hay merge
 
-Cài đặt:
+**Cài đặt:**
 
 ```
 npm install prettier link-staged husky --save-dev
 ```
+
+**Cách sử dụng prettier:**
+
+Có thể dùng câu lệnh để chạy prettier bằng cách viết trong `package.json` sau đó chạy bằng `npm run format`
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/3b5347bc-35f9-4976-b84b-472431b061fe)
+
+```
+"format": "prettier --write --single-quote --trailing-comma all 'src/**/*.{js,json,scss}'",
+```
+
+`--write` dùng để ghi đè lại file
+
+`--single-quote` dùng để thay dấu `""` thành dấu `''`
+
+`--trailing-comma all` dùng để thêm dấu `,` ở cuối array hoặc object
+
+**Cách sử dụng link-staged:**
+
+Chèn đoạn mã sau vào `package.json`
+
+```json
+"lint-staged": {
+    "*": "your-cmd"
+  }
+```
+
+_Ví dụ:_
+
+```
+"lint-staged": {
+    "src/**/*.{js,json,scss}": "prettier --write --single-quote --trailing-comma all"
+  },
+```
+
+Nghĩa là khi `git add .` thì có thể thực hiện hành động nào đó với các file đã được add (gọi là staged)
+
+**Cách sử dụng husky:**
+
+Chèn đoạn mã sau vào `package.json`
+
+```
+"husky": {
+    "hooks" : {
+      "pre-commit": "npm test",
+      "pre-push": "npm test",
+      "...": "..."
+    }
+  },
+```
+
+_Ví dụ:_
+
+```
+"husky": {
+    "hooks" : {
+      "pre-commit": "lint-staged"
+    }
+  },
+```
+
+Khi mà ta `git commit -m "..."` nó sẽ tự động chạy `lint-staged` format code với prettier
 
 ## IV. Kiến thức cốt lõi
 [:arrow_up: Mục lục](#mục-lục)
