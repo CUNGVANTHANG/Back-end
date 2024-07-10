@@ -17,6 +17,7 @@
   - [4. Cài đặt Morgan](#4-cài-đặt-morgan)
   - [5. Cài đặt Handlebars](#5-cài-đặt-handlebars)
   - [6. Cài đặt node-sass](#6-cài-đặt-node-sass)
+  - [7. Cài đặt MongoDB](#7-cài-đặt-mongodb)
 - [IV. Kiến thức cốt lõi](#iv-kiến-thức-cốt-lõi)
   - [1. Basic Routing](#1-basic-routing)
   - [2. Query parameters](#2-query-parameters)
@@ -399,6 +400,49 @@ Trong `package.json` ta set up như sau:
 ```
 
 ta đã thêm `"watch": "node-sass --watch src/resources/scss/ --output src/public/css/"` giúp cho lắng nghe sự thay đổi của tất cả file trong thư mục `scss`
+
+### 7. Cài đặt MongoDB
+[:arrow_up: Mục lục](#mục-lục)
+
+**Cài đặt trên Ubuntu:**
+
+1. [MongoDB Community Server](https://www.mongodb.com/try/download/community)
+2. [MongoDB Compass](https://www.mongodb.com/try/download/compass)
+
+**Khởi động MongoDB:**
+
+**Step 1:** Tạo thư mục chứa data
+
+```
+sudo mkdir -p [Đường_dẫn_thư_mục]
+```
+
+Nhớ xét quyền cho thư mục
+
+```
+sudo chmod 777 [Đường_dẫn_thư_mục]
+```
+
+**Step 2:** Chạy chương trình
+
+```
+mongod --dbpath [Đường_dẫn_thư_mục]
+```
+
+### 8. Cài đặt prettier, lint-staged, husky
+[:arrow_up: Mục lục](#mục-lục)
+
+Nguồn:
+
+1. [prettier](https://github.com/prettier/prettier)
+2. [lint-staged](https://github.com/lint-staged/lint-staged)
+3. [husky](https://github.com/typicode/husky)
+
+Cài đặt:
+
+```
+npm install prettier link-staged husky --save-dev
+```
 
 ## IV. Kiến thức cốt lõi
 [:arrow_up: Mục lục](#mục-lục)
