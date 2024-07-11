@@ -508,6 +508,21 @@ _Ví dụ:_
 
 Khi mà ta `git commit -m "..."` nó sẽ tự động chạy `lint-staged` format code với prettier
 
+### 9. Cài đặt mongoose
+[:arrow_up: Mục lục](#mục-lục)
+
+Tham khảo tại: [https://github.com/Automattic/mongoose](https://github.com/Automattic/mongoose)
+
+Hiểu đơn giản, mongoose là object model driver đứng giữa nodejs và mongoDB để giúp nodejs làm việc mongoDB dễ dàng và chặt chẽ hơn
+
+Mongoose là công cụ mô hình hóa document database, thiết kế để làm việc với môi trường bất đồng bộ, hỗ trợ cả Promise và callback
+
+Cài đặt
+
+```
+npm install mongoose
+```
+
 ## IV. Kiến thức cốt lõi
 [:arrow_up: Mục lục](#mục-lục)
 
@@ -825,8 +840,8 @@ const router = express.Router();
 
 const newsController = require("../app/controller/NewsController");
 
-router.use("/:slug", newsController.show);
-router.use("/", newsController.index);
+router.get("/:slug", newsController.show);
+router.get("/", newsController.index);
 
 module.exports = router;
 
@@ -837,8 +852,86 @@ const router = express.Router();
 
 const siteController = require("../app/controller/SiteController");
 
-router.use("/search", siteController.search);
-router.use("/", siteController.index);
+router.get("/search", siteController.search);
+router.get("/", siteController.index);
 
 module.exports = router;
 ```
+
+Có thể hiểu đơn giản là xây dựng router (tuyến đường) cho các page và chỉ dẫn các tuyến đường (chuyển trang) sử dụng controller hiển thị lên view cho người dùng
+
+### 2. Model
+[:arrow_up: Mục lục](#mục-lục)
+
+Cài đặt mongoose
+
+Cấu trúc thư mục:
+
+![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/346d51b6-435b-4b74-8954-7141d84ba983)
+
+```js
+// config/db/index.js
+
+// Dùng để kết nối tới database
+const mongoose = require("mongoose");
+
+async function connect() {
+  try {
+    await mongoose.connect("mongodb://localhost:27017/test", {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("Connect successfully");
+  } catch (error) {
+    console.log("Connect failure");
+  }
+}
+
+module.exports = { connect };
+```
+
+```js
+// models/Course.js
+
+// Dùng để lấy các trường dữ liệu trong database
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const Course = new Schema({
+  name: { type: String },
+  age: { type: String },
+  school: { type: String },
+  createAt: { type: Date, default: Date.now },
+  updateAt: { type: Date, default: Date.now },
+});
+
+module.exports = mongoose.model("Course", Course);
+```
+
+```js
+// controller/SiteController.js
+
+// Dùng để hiển thị dữ liệu (get dữ liệu)
+const Course = require("../models/Course");
+
+class SiteController {
+  // [GET] /
+  async index(req, res) {
+    try {
+      const courses = await Course.find({});
+      res.json(courses);
+    } catch (error) {
+      res.status(400).json({ error: "Error" });
+    }
+  }
+
+  // [GET] /search
+  search(req, res) {
+    res.render("search");
+  }
+}
+
+module.exports = new SiteController();
+```
+
+Ta có thể hiểu là từ config để kết nối, xong xây dựng model để lấy dữ liệu, xong từ controller nhận dữ liệu từ model rồi hiển thị lên view cho người dùng
