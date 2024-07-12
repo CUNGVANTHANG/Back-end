@@ -11,7 +11,7 @@
   },
   "author": "",
   "husky": {
-    "hooks" : {
+    "hooks": {
       "pre-commit": "lint-staged"
     }
   },
@@ -21,7 +21,8 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "express-handlebars": "^7.1.2"
+    "express-handlebars": "^7.1.2",
+    "mongoose": "^8.5.0"
   },
   "devDependencies": {
     "husky": "^9.0.11",
