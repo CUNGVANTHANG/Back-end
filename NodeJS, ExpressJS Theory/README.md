@@ -18,11 +18,14 @@
   - [5. Cài đặt Handlebars](#5-cài-đặt-handlebars)
   - [6. Cài đặt node-sass](#6-cài-đặt-node-sass)
   - [7. Cài đặt MongoDB](#7-cài-đặt-mongodb)
+  - [8. Cài đặt JSON Viewer](#8-cài-đặt-json-viewer)
 - [IV. Kiến thức cốt lõi](#iv-kiến-thức-cốt-lõi)
-  - [1. Basic Routing](#1-basic-routing)
-  - [2. Query parameters](#2-query-parameters)
-  - [3. Hành vi mặc định của form](#3-hành-vi-mặc-định-của-form)
-  - [4. POST method](#5-post-method)
+  - [1. Template engine](#1-template-engine)
+  - [2. Static file và SCSS](#2-static-file-và-scss)
+  - [3. Basic Routing](#3-basic-routing)
+  - [4. Query parameters](#4-query-parameters)
+  - [5. Hành vi mặc định của form](#5-hành-vi-mặc-định-của-form)
+  - [6. POST method](#6-post-method)
 
 </details>
 
@@ -31,6 +34,15 @@
 
 - [I. MVC](#i-mvc)
   - [1. Routes & Controllers](#1-routes--controllers)
+  - [2. Model](#2-model)
+- [II. CRUD](#ii-crud)
+- [III. Middleware](#iii-middleware)
+- [IV. RESTful API](#iv-restful-api)
+- [V. Cookies và Seasion](#v-cookies-và-seasion)
+- [VI. CORS Policy](#vi-cors-policy)
+- [VII. JWT](#vii-jwt)
+- [VIII. Redis](#viii-redis)
+- [IX. WebSocket](#ix-websocket)
 
 </details>
 
@@ -124,7 +136,6 @@ CSR (Client Side Rendering)
 Trang web hiển thị ít code hơn là một dấu hiệu sử dụng CSR (trả từ phía người dùng). Chú ý thẻ `<main id="main"></main>` là nơi mà JavaScript sẽ render ra đoạn mã HTML, CSS trong đó.
 
 ## III. Cài đặt
-
 [:arrow_up: Mục lục](#mục-lục)
 
 ### 1. Cài đặt NodeJS
@@ -523,10 +534,33 @@ Cài đặt
 npm install mongoose
 ```
 
+### 10. Cài đặt JSON Viewer
+[:arrow_up: Mục lục](#mục-lục)
+
+Cài đặt tại [https://chromewebstore.google.com/](https://chromewebstore.google.com/)
+
 ## IV. Kiến thức cốt lõi
 [:arrow_up: Mục lục](#mục-lục)
 
-### 1. Basic Routing
+### 1. Template engine 
+[:arrow_up: Mục lục](#mục-lục)
+
+Template engine (công cụ mẫu) là một công cụ giúp tách biệt logic ứng dụng và giao diện người dùng bằng cách cho phép bạn tạo ra các mẫu (templates) có thể tái sử dụng. 
+
+Một số Template engine thường dùng trong JavaScript (NodeJS): [EJS](https://ejs.co/#docs), [Pug](https://pugjs.org/api/getting-started.html), [Handlebars](https://handlebarsjs.com/guide/)
+
+### 2. Static file và SCSS
+[:arrow_up: Mục lục](#mục-lục)
+
+Cấu trúc dự án thường để file `.css` trong thư mục `public`
+
+![image](https://github.com/user-attachments/assets/7793ddc8-1164-4602-985c-8c1de0e92009)
+
+```js
+app.use(express.static(path.join(__dirname, "public")));
+```
+
+### 3. Basic Routing
 [:arrow_up: Mục lục](#mục-lục)
 
 Tham khảo tại đây: [https://expressjs.com/en/starter/basic-routing.html](https://expressjs.com/en/starter/basic-routing.html)
@@ -578,7 +612,7 @@ app.delete('/user', (req, res) => {
 })
 ```
 
-### 2. Query parameters
+### 4. Query parameters
 [:arrow_up: Mục lục](#mục-lục)
 
 ![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/26a80f16-d389-42e1-8834-a6d999e8f81e)
@@ -603,7 +637,7 @@ Các params sẽ được phân cách bằng `&` như trên, trả về 1 đối
 
 ![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/d462c048-9220-4f5b-9a0c-c1971610530e)
 
-### 3. Hành vi mặc định của form
+### 5. Hành vi mặc định của form
 [:arrow_up: Mục lục](#mục-lục)
 
 ```html
@@ -628,7 +662,7 @@ Ta nhận được query parameters như sau:
 ![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/2406ff55-c2d7-4375-ae78-5cf899d0f2f6)
 
 
-### 4. POST method
+### 6. POST method
 [:arrow_up: Mục lục](#mục-lục)
 
 Muốn sử dụng phương thức `POST` ta phải thêm `method="POST"` như sau
@@ -935,3 +969,28 @@ module.exports = new SiteController();
 ```
 
 Ta có thể hiểu là từ config để kết nối, xong xây dựng model để lấy dữ liệu, xong từ controller nhận dữ liệu từ model rồi hiển thị lên view cho người dùng
+
+## II. CRUD
+[:arrow_up: Mục lục](#mục-lục)
+
+## III. Middleware
+[:arrow_up: Mục lục](#mục-lục)
+
+## IV. RESTful API
+[:arrow_up: Mục lục](#mục-lục)
+
+## V. Cookies và Seasion
+[:arrow_up: Mục lục](#mục-lục)
+
+## VI. CORS Policy
+[:arrow_up: Mục lục](#mục-lục)
+
+## VII. JWT
+[:arrow_up: Mục lục](#mục-lục)
+
+## VIII. Redis
+[:arrow_up: Mục lục](#mục-lục)
+
+## IX. WebSocket
+[:arrow_up: Mục lục](#mục-lục)
+
