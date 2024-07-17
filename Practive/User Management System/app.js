@@ -9,6 +9,9 @@ const expressLayouts = require("express-ejs-layouts");
 const flash = require("connect-flash");
 const session = require("express-session");
 
+// Middleware ghi đè phương thức HTTP
+const methodOverride = require("method-override");
+
 const connectDB = require("./server/config/db.js");
 
 const app = express();
@@ -20,6 +23,7 @@ connectDB();
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(methodOverride("_method"));
 
 // Static files
 app.use(express.static("public"));
