@@ -1,4 +1,5 @@
 import firebase from "firebase/app";
+
 import "firebase/analytics";
 import "firebase/auth";
 import "firebase/firestore";
@@ -20,5 +21,5 @@ firebase.analytics();
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-export { auth, db };
+export { db, auth };
 export default firebase;

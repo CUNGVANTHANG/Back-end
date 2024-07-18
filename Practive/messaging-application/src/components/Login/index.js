@@ -1,12 +1,14 @@
 import React from "react";
 import { Row, Col, Typography, Button } from "antd"; // Bố cục trong antd được chia thành 24 cột, flex box
-// import { auth } from "../../firebase/config";
+import firebase, { auth } from "../../firebase/config";
 
 const { Title } = Typography;
 
+const fbProvider = firebase.auth.FacebookAuthProvider();
+
 export default function Login() {
   const handleFbLogin = () => {
-    // auth.signInWithPopup();
+    auth.signInWithPopup(fbProvider);
   };
 
   return (
