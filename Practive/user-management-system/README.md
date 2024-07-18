@@ -6,6 +6,8 @@
 
 ## 2. Config
 
+![image](https://github.com/user-attachments/assets/11d91abb-f1b2-4730-ab0e-1b5e20307b93)
+
 ```env
 # .env
 MONGODB_URI = mongodb+srv://cungvanthang2k3:k4JfeyQRPs5jpjNb@cluster0.x5cc3dy.mongodb.net/
