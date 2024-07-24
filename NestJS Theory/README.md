@@ -7,6 +7,7 @@
 - [1. Chạy chương trình đầu tiên](#2-chạy-chương-trình-đầu-tiên)
 - [2. Pipes](#2-pipes)
 - [3. Provider](#3-provider)
+- [4. Customer provider](#4-customer-provider)
 
 </details>
 
@@ -151,10 +152,10 @@ _Ví dụ:_
 src
 ├── app.module.ts
 ├── main.ts
-├── user.dto.ts
 └── users
     ├── user.controller.ts
     └── user.module.ts
+    └── user.dto.ts
 ```
 
 ```ts
@@ -185,7 +186,7 @@ export class AppModule {}
 ```
 
 ```ts
-// user.dto.ts - Định dạng kiểu dữ liệu người dùng gửi lên
+// users/user.dto.ts - Định dạng kiểu dữ liệu người dùng gửi lên
 export class UserDto { 
     username: string;
     password: string;
@@ -195,7 +196,7 @@ export class UserDto {
 ```ts
 // users/user.controller.ts
 import { Param, Body, Controller, Get, Post } from '@nestjs/common';
-import { UserDto } from '../user.dto';
+import { UserDto } from './user.dto';
 
 @Controller('users')
 export class UserController {
@@ -289,7 +290,7 @@ Vào trang github của class-validator để tham khảo cách làm:
 Giả dụ tôi muốn `username` và `password` không được bỏ trống thì sẽ làm như sau:
 
 ```ts
-// user.dto.ts
+// users/user.dto.ts
 import { IsNotEmpty } from "class-validator";
 
 export class UserDto { // Kiểu dữ liệu người dùng gửi lên
@@ -336,7 +337,7 @@ Cách thực hiện sẽ như cấp độ Controller, ta sẽ thêm các **Decor
 Mặc dù định dạng dữ liệu gửi lên (`username` và `password`) không có `avatar` nhưng vẫn gửi lên được
 
 ```ts
-// user.dto.ts
+// users/user.dto.ts
 import { IsNotEmpty } from "class-validator";
 
 export class UserDto { // Kiểu dữ liệu người dùng gửi lên
@@ -362,7 +363,7 @@ createUser(@Body() user: UserDto): UserDto {
 ```
 
 ```ts
-// user.dto.ts
+// users/user.dto.ts
 import { IsNotEmpty } from "class-validator";
 import { Expose } from "class-transformer";
 
@@ -400,9 +401,9 @@ export abstract class BaseDto {
 xong đó sẽ sử dụng kế thừa `extends` ở mỗi bảng dữ liệu
 
 ```
-// user.dto.ts
+// users/user.dto.ts
 import { IsNotEmpty } from "class-validator";
-import { BaseDto } from "./common/base.dto";
+import { BaseDto } from "../common/base.dto";
 import { Expose } from "class-transformer";
 
 export class UserDto extends BaseDto { // Kiểu dữ liệu người dùng gửi lên
@@ -437,9 +438,9 @@ createUser(@Body() user: UserDto): UserDto {
 Ta sẽ dụng generic để viết hàm giúp cho ta đỡ phải viết lặp lại nhiều lần
 
 ```ts
-// user.dto.ts
+// users/user.dto.ts
 import { IsNotEmpty } from "class-validator";
-import { BaseDto } from "./common/base.dto";
+import { BaseDto } from "../common/base.dto";
 import { Expose } from "class-transformer";
 import { plainToClass } from 'class-transformer';
 
@@ -532,6 +533,19 @@ Ta đang lấy từ `container` thông qua phương thức `get`, điều này g
 
 _Ví dụ 2:_ Kế tiếp từ ví dụ ta thực hiện trên [phần 2 pipes](#cấp-độ-global)
 
+**Cấu trúc thư mục**
+
+```
+src
+├── app.module.ts
+├── main.ts
+└── users
+    ├── user.controller.ts
+    └── user.module.ts
+    └── user.dto.ts
+    └── user.service.ts
+```
+
 ```ts
 // users/user.module.ts
 import { Module } from "@nestjs/common"
@@ -546,7 +560,7 @@ export class UserModule {}
 ```ts
 // users/user.controller.ts
 import { Param, Body, Controller, Get, Post, ParseIntPipe } from '@nestjs/common';
-import { UserDto } from '../user.dto';
+import { UserDto } from './user.dto';
 
 @Controller('users')
 export class UserController {
@@ -579,7 +593,7 @@ Nơi xử lý dữ liệu (service) ta sẽ tạo 1 file `user.service.ts`
 
 ```ts
 // users/user.service.ts
-import { UserDto } from "../user.dto";
+import { UserDto } from "./user.dto";
 
 export class UserService {
     createUser(user: any): any {
@@ -612,7 +626,7 @@ Khi đó ta phải thay đổi code trong `users/user.controller.ts` (**Nơi l�
 ```ts
 // users/user.controller.ts
 import { Param, Body, Controller, Get, Post, ParseIntPipe } from '@nestjs/common';
-import { UserDto } from '../user.dto';
+import { UserDto } from './user.dto';
 import { ModuleRef } from '@nestjs/core';
 import { UserService } from './user.service';
 
@@ -638,7 +652,7 @@ export class UserController {
 
 ```ts
 import { Param, Body, Controller, Get, Post, ParseIntPipe } from '@nestjs/common';
-import { UserDto } from '../user.dto';
+import { UserDto } from './user.dto';
 import { UserService } from './user.service';
 
 @Controller('users')
@@ -691,7 +705,7 @@ Khi đó ta phải thay đổi code trong `users/user.controller.ts` (**Nơi l�
 ```ts
 // users/user.controller.ts
 import { Param, Body, Controller, Get, Post, ParseIntPipe } from '@nestjs/common';
-import { UserDto } from '../user.dto';
+import { UserDto } from './user.dto';
 import { ModuleRef } from '@nestjs/core';
 
 @Controller('users')
@@ -715,7 +729,7 @@ export class UserController {
 
 ```ts
 import { Param, Body, Controller, Get, Post, ParseIntPipe, Inject } from '@nestjs/common';
-import { UserDto } from '../user.dto';
+import { UserDto } from './user.dto';
 import { UserService } from './user.service';
 
 @Controller('users')
