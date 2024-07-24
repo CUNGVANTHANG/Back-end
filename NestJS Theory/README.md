@@ -5,8 +5,8 @@
 
 - [Cài đặt](#cài-đặt)
 - [1. Chạy chương trình đầu tiên](#2-chạy-chương-trình-đầu-tiên)
-- [2. Provider](#2-provider)
-- [3. Pipes](#3-pipes)
+- [2. Pipes](#2-pipes)
+- [3. Provider](#3-provider)
 
 </details>
 
@@ -131,15 +131,10 @@ Kết quả cho thấy đúng như kỳ vọng
 
 ![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/5138dec8-5129-4cc9-a799-99dc88e32b16)
 
-### 2. Provider
+### 2. Pipes
 [:arrow_up: Mục lục](#mục-lục)
 
-
-
-### 3. Pipes
-[:arrow_up: Mục lục](#mục-lục)
-
-![image](https://github.com/CUNGVANTHANG/Back-end/assets/96326479/ceb0c3a8-7009-409b-9c82-849136b80260)
+<img src="https://github.com/CUNGVANTHANG/Back-end/assets/96326479/ceb0c3a8-7009-409b-9c82-849136b80260" height="200px">
 
 Client gửi request lên, trước khi tới controller xử lý phải qua **Pipe** có thể thực hiện:
 
@@ -476,3 +471,266 @@ createUser(@Body() user: UserDto): UserDto {
 
 Kết quả vẫn sẽ như vậy, nhưng code sẽ gọn hơn...
 
+### 3. Provider
+[:arrow_up: Mục lục](#mục-lục)
+
+Đầu tiên chúng ta cần hiểu mô hình hoạt động Dependency injection (hiểu đơn giản là cho tất cả vào container và lấy ra từ container)
+
+<img src="https://github.com/user-attachments/assets/6067c418-3946-4f8e-b1c6-ade5f95394d4" height="200px">
+
+Chúng ta có demo sau đây để ta có thể hiểu được:
+
+_Ví dụ 1:_
+
+```ts
+class UserService {
+	hello(): void {
+		console.log("hello");
+	}
+}
+
+class UserRepository {
+	test(): void {
+		console.log("test");
+	}
+}
+
+class Injector {
+	private _container = new Map();
+
+	constructor(private _providers: any[] = []) {
+		this._providers.forEach(service => this._container.set(service, new service()));
+	}
+
+	get(serviceKey: any) {
+		const serviceInstance = this._container.get(serviceKey);
+		if (!serviceInstance) {
+			throw Error("No provider not found");
+		}
+		return serviceInstance;
+	}
+}
+
+const inject = new Injector([UserService, UserRepository]);
+const userService = inject.get(UserService);
+userService.hello(); // hello 
+const repo = inject.get(UserRepository);
+repo.test(); // test
+```
+
+Chú ý phần sau ta có thể thấy:
+
+```ts
+const inject = new Injector([UserService, UserRepository]);
+const userService = inject.get(UserService);
+userService.hello(); // hello 
+const repo = inject.get(UserRepository);
+repo.test(); // test
+```
+
+Ta đang lấy từ `container` thông qua phương thức `get`, điều này giúp ta dễ dàng quản lý khi mà dự án lớn. Mỗi module đều có một injector riêng
+
+_Ví dụ 2:_ Kế tiếp từ ví dụ ta thực hiện trên [phần 2 pipes](#cấp-độ-global)
+
+```ts
+// users/user.module.ts
+import { Module } from "@nestjs/common"
+import { UserController } from "./user.controller"
+
+@Module({
+  controllers: [UserController]
+})
+export class UserModule {}
+```
+
+```ts
+// users/user.controller.ts
+import { Param, Body, Controller, Get, Post, ParseIntPipe } from '@nestjs/common';
+import { UserDto } from '../user.dto';
+
+@Controller('users')
+export class UserController {
+    @Post() // Gửi dữ liệu từ body
+    createUser(@Body() user: UserDto): UserDto {
+        user.id = 1;
+        user.createdAt = new Date();
+        user.updatedAt = new Date();
+        return UserDto.plainToInstance(user);
+    }
+
+    @Get(":id")
+    getUserById(@Param("id", ParseIntPipe) id: number) {
+        return 'text';
+    }
+}
+```
+
+<img src="https://github.com/user-attachments/assets/87b3678d-4910-4c6d-8245-8ad7c5a4a702" height="300px" >
+
+Chúng ta có thể thấy chúng ta đang fix cứng code, khi có sự thay đổi ta sẽ phải tìm khá lâu (bản chất controller có tác dụng là nhập dữ liệu đầu vào và trả dữ liệu đầu ra)
+
+```ts
+user.id = 1;
+user.createdAt = new Date();
+user.updatedAt = new Date();
+```
+
+Nơi xử lý dữ liệu (service) ta sẽ tạo 1 file `user.service.ts`
+
+```ts
+// users/user.service.ts
+import { UserDto } from "../user.dto";
+
+export class UserService {
+    createUser(user: any): any {
+        user.id = 1;
+        user.createdAt = new Date();
+        user.updatedAt = new Date();
+        return UserDto.plainToInstance(user);
+    }
+}
+```
+
+Tiếp tục để có thể sử dụng được `UserSevice` ta phải cấp `provider: [UserSevice]` cho `user.module.ts` (**Nơi cung cấp**)
+
+```ts
+import { Module } from "@nestjs/common"
+import { UserController } from "./user.controller"
+import { UserService } from "./user.service"
+
+@Module({
+  controllers: [UserController],
+  providers: [UserService] // Nơi cung cấp
+})
+export class UserModule {}
+```
+
+Khi đó ta phải thay đổi code trong `users/user.controller.ts` (**Nơi lấy ra**). Ta có 2 cách để làm
+
+**Cách 1:** Sử dụng `ModuleRef` do NestJS cung cấp để lấy ra
+
+```ts
+// users/user.controller.ts
+import { Param, Body, Controller, Get, Post, ParseIntPipe } from '@nestjs/common';
+import { UserDto } from '../user.dto';
+import { ModuleRef } from '@nestjs/core';
+import { UserService } from './user.service';
+
+@Controller('users')
+export class UserController {
+
+    constructor(private moduleRef: ModuleRef) {}
+
+    @Post() // Gửi dữ liệu từ body
+    createUser(@Body() user: UserDto): UserDto {
+        const userService = this.moduleRef.get(UserService);
+        return userService.createUser(user);
+    }
+
+    @Get(":id")
+    getUserById(@Param("id", ParseIntPipe) id: number) {
+        return 'text';
+    }
+}
+```
+
+**Cách 2:** Trực tiếp lấy ra
+
+```ts
+import { Param, Body, Controller, Get, Post, ParseIntPipe } from '@nestjs/common';
+import { UserDto } from '../user.dto';
+import { UserService } from './user.service';
+
+@Controller('users')
+export class UserController {
+
+    constructor(private readonly userSevice: UserService) {}
+
+    @Post() // Gửi dữ liệu từ body
+    createUser(@Body() user: UserDto): UserDto {
+        return this.userSevice.createUser(user);
+    }
+
+    @Get(":id")
+    getUserById(@Param("id", ParseIntPipe) id: number) {
+        return 'text';
+    }
+}
+```
+
+**Chú ý:** Trong trường hợp có các provider tên giống nhau thì ta cần phân biệt bằng cách **`key`**, mặc định khi ta chưa thay đổi thì `key` của provider sẽ là tên class đó
+
+```ts
+providers: [{
+    provide: UserService,
+    useClass: UserService
+  }] 
+```
+
+Ta có thể thay đổi thành như sau:
+
+```ts
+import { Module } from "@nestjs/common"
+import { UserController } from "./user.controller"
+import { UserService } from "./user.service"
+
+@Module({
+  controllers: [UserController],
+  providers: [{
+    provide: "USER_SERVICE",
+    useClass: UserService
+  }] 
+})
+export class UserModule {}
+```
+
+Khi đó ta phải thay đổi code trong `users/user.controller.ts` (**Nơi lấy ra**). Ta có 2 cách để làm
+
+**Cách 1:** Sử dụng `ModuleRef` của NestJS cung cấp cho
+
+```ts
+// users/user.controller.ts
+import { Param, Body, Controller, Get, Post, ParseIntPipe } from '@nestjs/common';
+import { UserDto } from '../user.dto';
+import { ModuleRef } from '@nestjs/core';
+
+@Controller('users')
+export class UserController {
+
+    constructor(private moduleRef: ModuleRef) {}
+
+    @Post() // Gửi dữ liệu từ body
+    createUser(@Body() user: UserDto): UserDto {
+        return this.moduleRef.get("USER_SERVICE").createUser(user);
+    }
+
+    @Get(":id")
+    getUserById(@Param("id", ParseIntPipe) id: number) {
+        return 'text';
+    }
+}
+```
+
+**Cách 2:** Lấy ra trực tiếp
+
+```ts
+import { Param, Body, Controller, Get, Post, ParseIntPipe, Inject } from '@nestjs/common';
+import { UserDto } from '../user.dto';
+import { UserService } from './user.service';
+
+@Controller('users')
+export class UserController {
+
+    constructor(@Inject("USER_SERVICE") private readonly userService: UserService) {}
+
+    @Post() // Gửi dữ liệu từ body
+    createUser(@Body() user: UserDto): UserDto {
+        return this.userService.createUser(user);
+    }
+
+    @Get(":id")
+    getUserById(@Param("id", ParseIntPipe) id: number) {
+        return 'text';
+    }
+}
+```
