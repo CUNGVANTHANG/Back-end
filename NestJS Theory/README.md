@@ -158,6 +158,8 @@ src
     └── user.dto.ts
 ```
 
+`.dto` **có nghĩa là Data Transform Object**
+
 ```ts
 // main.ts
 import { NestFactory } from "@nestjs/core";
@@ -546,6 +548,8 @@ src
     └── user.service.ts
 ```
 
+`.dto` **có nghĩa là Data Transform Object**
+
 ```ts
 // users/user.module.ts
 import { Module } from "@nestjs/common"
@@ -758,6 +762,22 @@ export class UserController {
 npm install --save @nestjs/typeorm typeorm mysql2
 ```
 
+```
+src
+├── app.module.ts
+├── main.ts
+└── users
+    ├── user.controller.ts
+    └── user.module.ts
+    └── user.dto.ts
+    └── user.service.ts
+    └── user.entity.ts
+```
+
+`.dto` **có nghĩa là Data Transform Object**
+
+### Config connect
+
 Sau khi quá trình cài đặt hoàn tất, chúng ta có thể nhập `TypeOrmModule` vào thư mục gốc `AppModule`.
 
 ```ts
@@ -775,11 +795,25 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       password: 'root',
       database: 'test',
       entities: [],
-      synchronize: true,
+      synchronize: true, // production sẽ phải đổi thành false
     }),
   ],
 })
 export class AppModule {}
+```
+
+```ts
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new ValidationPipe());
+  await app.listen(3333);
+}
+bootstrap();
 ```
 
 **Config docker**
@@ -827,11 +861,15 @@ Chúng ta có thể sử dụng `dbeaver` để kết nối tới cổng **3309*
 import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserEntity } from "./user.entity";
+import { UserController } from "./user.controller";
+import { UserService } from "./user.service";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([UserEntity])
     ],
+    controllers: [UserController],
+    providers: [UserService],
     
 })
 export class UserModule {}
@@ -841,7 +879,9 @@ export class UserModule {}
 // users/user.entity.ts
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
+@Entity({
+    name: "user" // Đặt tên cho bảng
+})
 export class UserEntity {
     @PrimaryGeneratedColumn("uuid")
     id: number
@@ -852,7 +892,7 @@ export class UserEntity {
     @Column()
     lastName: string
 
-    @Column()
+    @Column({ default: false })
     isActive: boolean
 }
 ```
@@ -882,7 +922,7 @@ import { UserEntity } from './users/user.entity';
       password: 'typeorm',
       database: 'datasql',
       entities: [UserEntity],
-      synchronize: true,
+      synchronize: true, // production sẽ phải đổi thành false
     }),
     UserModule,
   ],
@@ -892,6 +932,85 @@ import { UserEntity } from './users/user.entity';
 export class AppModule {};
 ```
 
-![image](https://github.com/user-attachments/assets/73549150-0d8d-490f-bfa5-dd518f29d7b1)
+```
++-------------+--------------+----------------------------+
+|                           user                          |
++-------------+--------------+----------------------------+
+| id          | varchar(36)  | PRIMARY KEY AUTO_INCREMENT |
+| firstName   | varchar(255) |                            |
+| lastName    | varchar(255) |                            |
+| isActive    | tinyint      |                            |
++-------------+--------------+----------------------------+
+```
 
+![image](https://github.com/user-attachments/assets/54d76627-8046-456a-bb14-e7a55da5db82)
+
+### Thêm dữ liệu vào database
+
+Tiếp theo để có thể thực hiện thêm, sửa, xóa với database ta cần `user.service.ts`, `user.controller.ts` và `user.dto.ts`
+
+```ts
+// users/user.controller.ts
+import { Body, Controller, Post } from "@nestjs/common";
+import { UserDto } from "./user.dto";
+import { UserService } from "./user.service";
+
+@Controller('users')
+export class UserController { // Sẽ tương tác với UserService và làm việc trực tiếp với UserDto
+    constructor(private readonly userService : UserService) {}
+
+    @Post()
+    createUser(@Body() user: UserDto): Promise<UserDto> {
+        return this.userService.save(user);
+    }
+}
+```
+
+```ts
+// users/user.service.ts
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { UserEntity } from "./user.entity";
+import { Repository } from "typeorm";
+import { UserDto } from "./user.dto";
+import { plainToInstance } from "class-transformer";
+
+@Injectable()
+export class UserService { // Làm nhiệm vụ tương tác với database
+    // Khởi tạo repository
+    constructor(
+        @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>
+    ) {}
+
+    async save(userDto: UserDto): Promise<UserDto> {
+        const savedUser = await this.userRepository.save(userDto);
+        return plainToInstance(UserDto, savedUser, { excludeExtraneousValues: true });
+    }
+}
+```
+
+```ts
+// users/user.dto.ts
+import { Expose } from "class-transformer"
+
+export class UserDto {
+    @Expose()
+    id: number
+
+    @Expose()
+    firstName: string
+
+    @Expose()
+    lastName: string
+
+    @Expose()
+    isActive: boolean
+}
+```
+
+Sử dụng Postman để gửi dữ liệu 
+
+<img src="https://github.com/user-attachments/assets/6cde2568-5024-4701-be8f-e05dffe39b58" height="300px" >
+
+### Sửa dữ liệu trong database
 
