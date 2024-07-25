@@ -884,7 +884,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 })
 export class UserEntity {
     @PrimaryGeneratedColumn("uuid")
-    id: number
+    id: string
 
     @Column()
     firstName: string
@@ -945,13 +945,13 @@ export class AppModule {};
 
 ![image](https://github.com/user-attachments/assets/54d76627-8046-456a-bb14-e7a55da5db82)
 
-### Thêm dữ liệu vào database
+### Thêm, sửa, xóa, lấy dữ liệu vào database
 
-Tiếp theo để có thể thực hiện thêm, sửa, xóa với database ta cần `user.service.ts`, `user.controller.ts` và `user.dto.ts`
+Tiếp theo để có thể thực hiện thêm, sửa, xóa, lấy database ta cần `user.service.ts`, `user.controller.ts` và `user.dto.ts`
 
 ```ts
 // users/user.controller.ts
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { UserDto } from "./user.dto";
 import { UserService } from "./user.service";
 
@@ -961,7 +961,22 @@ export class UserController { // Sẽ tương tác với UserService và làm vi
 
     @Post()
     createUser(@Body() user: UserDto): Promise<UserDto> {
-        return this.userService.save(user);
+        return this.userService.add(user);
+    }
+
+    @Put(":id")
+    updateUser(@Param("id") id: string, @Body() user: UserDto): Promise<{ result: string }> {
+        return this.userService.update(id, user);
+    }
+
+    @Delete(":id")
+    deleteUser(@Param("id") id: string): Promise<{ result: string }> {
+        return this.userService.delete(id);
+    }
+
+    @Get(":id")
+    getUser(@Param("id") id: string): Promise<UserDto> {
+        return this.userService.get(id);
     }
 }
 ```
@@ -982,9 +997,28 @@ export class UserService { // Làm nhiệm vụ tương tác với database
         @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>
     ) {}
 
-    async save(userDto: UserDto): Promise<UserDto> {
+    async add(userDto: UserDto): Promise<UserDto> {
         const savedUser = await this.userRepository.save(userDto);
         return plainToInstance(UserDto, savedUser, { excludeExtraneousValues: true });
+    }
+
+    async update(id: string, userDto: UserDto): Promise<{ result: string }> {
+        await this.userRepository.update(id, userDto);
+        return { result: "success" };
+    }
+
+    async delete(id: string): Promise<{ result: string }> {
+        await this.userRepository.delete(id);
+        return { result: "success" };
+    }
+
+    async get(id: string): Promise<UserDto> {
+        const foundUser = await this.userRepository.findOne({
+            where: {
+                id: id
+            }
+        });
+        return plainToInstance(UserDto, foundUser, { excludeExtraneousValues: true });
     }
 }
 ```
@@ -995,7 +1029,7 @@ import { Expose } from "class-transformer"
 
 export class UserDto {
     @Expose()
-    id: number
+    id: string
 
     @Expose()
     firstName: string
@@ -1010,7 +1044,9 @@ export class UserDto {
 
 Sử dụng Postman để gửi dữ liệu 
 
-<img src="https://github.com/user-attachments/assets/6cde2568-5024-4701-be8f-e05dffe39b58" height="300px" >
+<img src="https://github.com/user-attachments/assets/6cde2568-5024-4701-be8f-e05dffe39b58" width="400px" >
 
-### Sửa dữ liệu trong database
+Sử dụng Postman để lấy dữ liệu
+
+<img src="https://github.com/user-attachments/assets/8cbe8d6f-6173-4a54-93cf-e2816d37701e" width="400px" >
 
