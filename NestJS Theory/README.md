@@ -7,7 +7,7 @@
 - [1. Chạy chương trình đầu tiên](#2-chạy-chương-trình-đầu-tiên)
 - [2. Pipes](#2-pipes)
 - [3. Provider](#3-provider)
-- [4. Customer provider](#4-customer-provider)
+- [4. TypeORM](#4-typeorm)
 
 </details>
 
@@ -748,3 +748,150 @@ export class UserController {
     }
 }
 ```
+
+### 4. TypeORM
+[:arrow_up: Mục lục](#mục-lục)
+
+**Cài đặt:**
+
+```
+npm install --save @nestjs/typeorm typeorm mysql2
+```
+
+Sau khi quá trình cài đặt hoàn tất, chúng ta có thể nhập `TypeOrmModule` vào thư mục gốc `AppModule`.
+
+```ts
+// app.module.ts
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3309,
+      username: 'root',
+      password: 'root',
+      database: 'test',
+      entities: [],
+      synchronize: true,
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+**Config docker**
+
+Tạo file `docker-compose.yml` để run service. Tạo thư mục `data/mysql` để lưu trữ dữ liệu
+
+![image](https://github.com/user-attachments/assets/04e9579f-7fb7-4674-9f75-cd567ecca039)
+
+```yml
+version: "3.9"
+services:
+  my-sql:
+    image: mysql:8.0
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: datasql
+      MYSQL_USER: typeorm
+      MYSQL_PASSWORD: typeorm
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+```
+
+Trong đó có `volumes` giúp chúng ta lưu dữ liệu tại ổ đĩa, thay vì lưu vào container vì mỗi khi restart container sẽ bị mất đi
+
+**Run docker**
+
+```
+docker-compose up -d
+```
+
+**Kết nối cơ sở dữ liệu**
+
+Chúng ta có thể sử dụng `dbeaver` để kết nối tới cổng **3309** với tài khoản là **root**, mật khẩu là **root**
+
+![image](https://github.com/user-attachments/assets/95768b62-64ef-4497-b231-1517bcfb5ab4)
+
+**Tạo thư mục users để quản lý dữ liệu của người dùng**
+
+![image](https://github.com/user-attachments/assets/81e39373-d25f-4811-9396-d9b7858bd6ed)
+
+```ts
+// users/user.module.ts
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UserEntity } from "./user.entity";
+
+@Module({
+    imports: [
+        TypeOrmModule.forFeature([UserEntity])
+    ],
+    
+})
+export class UserModule {}
+```
+
+```ts
+// users/user.entity.ts
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+
+@Entity()
+export class UserEntity {
+    @PrimaryGeneratedColumn("uuid")
+    id: number
+
+    @Column()
+    firstName: string
+
+    @Column()
+    lastName: string
+
+    @Column()
+    isActive: boolean
+}
+```
+
+File `.entity` dùng để xác định các trường trong bảng
+
+Tham khảo entity thêm tại đây: https://typeorm.io/entities
+
+Khi thực hiện xong chúng ta sẽ thêm `UserModule` và `UserEntity` vào `app.module.ts` để xem kết quả
+
+```ts
+// app.module.ts
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './users/user.module';
+import { UserEntity } from './users/user.entity';
+
+@Module({
+  imports: [
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: 'localhost',
+      port: 3309,
+      username: 'typeorm',
+      password: 'typeorm',
+      database: 'datasql',
+      entities: [UserEntity],
+      synchronize: true,
+    }),
+    UserModule,
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {};
+```
+
+![image](https://github.com/user-attachments/assets/73549150-0d8d-490f-bfa5-dd518f29d7b1)
+
+
