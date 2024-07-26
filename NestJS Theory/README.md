@@ -8,6 +8,7 @@
 - [2. Pipes](#2-pipes)
 - [3. Provider](#3-provider)
 - [4. TypeORM](#4-typeorm)
+- [5. Prisma](#5-prisma)
 
 </details>
 
@@ -158,7 +159,7 @@ src
     └── user.dto.ts
 ```
 
-`.dto` **có nghĩa là Data Transform Object**
+`.dto` **có nghĩa là Data Transfer Object**
 
 ```ts
 // main.ts
@@ -548,7 +549,7 @@ src
     └── user.service.ts
 ```
 
-`.dto` **có nghĩa là Data Transform Object**
+`.dto` **có nghĩa là Data Transfer Object**
 
 ```ts
 // users/user.module.ts
@@ -756,6 +757,8 @@ export class UserController {
 ### 4. TypeORM
 [:arrow_up: Mục lục](#mục-lục)
 
+![image](https://github.com/user-attachments/assets/1e04549c-c4db-4fab-878b-728de2b707c2)
+
 **Cài đặt:**
 
 ```
@@ -774,7 +777,7 @@ src
     └── user.entity.ts
 ```
 
-`.dto` **có nghĩa là Data Transform Object**
+`.dto` **có nghĩa là Data Transfer Object**
 
 ### Config connect
 
@@ -1049,4 +1052,3 @@ Sử dụng Postman để gửi dữ liệu
 Sử dụng Postman để lấy dữ liệu
 
 <img src="https://github.com/user-attachments/assets/8cbe8d6f-6173-4a54-93cf-e2816d37701e" width="400px" >
-
