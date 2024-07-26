@@ -18,7 +18,10 @@
   - [5. Cài đặt Handlebars](#5-cài-đặt-handlebars)
   - [6. Cài đặt node-sass](#6-cài-đặt-node-sass)
   - [7. Cài đặt MongoDB](#7-cài-đặt-mongodb)
-  - [8. Cài đặt JSON Viewer](#8-cài-đặt-json-viewer)
+  - [8. Cài đặt prettier, lint-staged, husky](#8-cài-đặt-prettier-lint-staged-husky)
+  - [9. Cài đặt mongoose](#9-cài-đặt-mongoose)
+  - [10. Cài đặt JSON Viewer](#10-cài-đặt-json-viewer)
+  - [11. Cài đặt NVM](#11-cài-đặt-nvm)
 - [IV. Kiến thức cốt lõi](#iv-kiến-thức-cốt-lõi)
   - [1. Template engine](#1-template-engine)
   - [2. Static file và SCSS](#2-static-file-và-scss)
@@ -538,6 +541,57 @@ npm install mongoose
 [:arrow_up: Mục lục](#mục-lục)
 
 Cài đặt tại [https://chromewebstore.google.com/](https://chromewebstore.google.com/)
+
+### 11. Cài đặt NVM
+[:arrow_up: Mục lục](#mục-lục)
+
+NVM giúp cài nhiều Node.js version trên cùng một máy
+
+**Cài đặt phiên bản Node.js mới nhất**
+
+```
+nvm install node
+```
+
+**Cài đặt phiên bản Node.js cụ thể**
+
+```
+nvm install 8.11.1 // để cài phiên bản 8.11.1
+
+nvm install 12.13.1 // để cài phiên bản 12.13.1
+```
+
+**Xóa phiên bản Node.js**
+
+```
+nvm uninstall 8.11.1
+```
+
+**Liệt kê tất cả các phiên bản đã cài đặt**
+
+```
+nvm ls
+```
+
+**Chuyển đổi qua lại các phiên bản**
+
+```
+nvm use 8.11.1  // chuyển qua phiên bản 8.11.1
+
+nvm use 12.13.1 // chuyển qua phiên bản 12.13.1
+```
+
+**Chạy trực tiếp, không cần chuyển**
+
+```
+nvm run 8.11.1 app.js
+```
+
+hoặc
+
+```
+nvm exec 8.11.1 node app.js
+```
 
 ## IV. Kiến thức cốt lõi
 [:arrow_up: Mục lục](#mục-lục)
