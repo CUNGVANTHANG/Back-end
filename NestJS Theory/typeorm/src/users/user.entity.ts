@@ -1,9 +1,11 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
-@Entity()
+@Entity({
+    name: "user"
+})
 export class UserEntity {
-    @PrimaryGeneratedColumn()
-    id: number
+    @PrimaryGeneratedColumn("uuid")
+    id: string
 
     @Column()
     firstName: string
@@ -11,6 +13,6 @@ export class UserEntity {
     @Column()
     lastName: string
 
-    @Column()
+    @Column({ default: false })
     isActive: boolean
 }
