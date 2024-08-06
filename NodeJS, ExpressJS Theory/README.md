@@ -1030,6 +1030,108 @@ Ta có thể hiểu là từ config để kết nối, xong xây dựng model đ
 ## III. Middleware
 [:arrow_up: Mục lục](#mục-lục)
 
+Về cơ bản thì Middleware (hiểu là "thành phần trung gian") sẽ đóng vai trò trung gian giữa **request**/**response** (tương tác với người dùng) và các xử lý logic bên trong web server.
+
+Trong ExpressJS, một hàm Middleware sau khi hoạt động xong, nếu chưa phải là cuối cùng trong chuỗi các hàm cần thực hiện, sẽ cần gọi lệnh `next()` để chuyển sang hàm tiếp theo, bằng không xử lý sẽ bị treo tại hàm đó.
+
+Các chức năng mà middleware có thể thực hiện trong ExpressJS sẽ bao gồm :
+
+- Thực hiện bất cứ đoạn code nào
+- Thay đổi các đối tượng request và response
+- Kết thúc một quá trình request-response
+- Gọi hàm middleware tiếp theo trong stack
+
+Trong Express, có 5 kiểu middleware có thể sử dụng :
+
+- Application-level middleware (middleware cấp ứng dụng)
+- Router-level middleware (middlware cấp điều hướng - router)
+- Error-handling middleware (middleware xử lý lỗi)
+- Built-in middleware (middleware sẵn có)
+- Third-party middleware (middleware của bên thứ ba)
+
+**Application-level middleware:**
+
+_Ví dụ:_ Dưới đây mô tả một hàm ko khai báo đường dẫn cụ thể, do đó nó sẽ được thực hiện mỗi lần request:
+
+```js
+var app = express()
+
+app.use(function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
+```
+
+_Ví dụ:_ Dưới đây dùng hàm use đến đường dẫn `/user/:id`. Hàm này sẽ được thực hiện mỗi khi request đến đường dẫn `/user/:id` bất kể phương thức nào (GET, POST,...):
+
+```js
+app.use('/user/:id', function (req, res, next) {
+  console.log('Request Type:', req.method)
+  next()
+})
+```
+
+**Router-level middleware:**
+
+_Ví dụ:_ Dưới đây mô tả hàm sẽ hoạt động khi ta chuyển trang
+
+```js
+var app = express()
+var router = express.Router()
+
+// a middleware function with no mount path. This code is executed for every request to the router
+router.use(function (req, res, next) {
+  console.log('Time:', Date.now())
+  next()
+})
+```
+
+**Error-handling middleware:**
+
+Đây là các middleware phục vụ cho việc xử lý lỗi. Một lưu ý là các hàm cho việc này luôn nhận bốn tham số `(err, req, res, next)`. Khi muốn khai báo một middlware cho việc xử lý lỗi, bạn cần tạo một hàm có 4 tham số đầu vào.
+
+_Ví dụ:_ Đoạn code dưới đây mô tả một hàm xử lý lỗi truyền về cho client lỗi **500** khi có lỗi xảy ra từ server:
+
+```js
+app.use(function (err, req, res, next) {
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+})
+```
+
+**Built-in middleware:**
+
+Chỉ có một Built-in middlware duy nhất còn lại trong ExpressJS là `express.static`, dựa trên thư viện server-static, được dùng để cung cấp các nội dung tĩnh trong trang Web, ví dụ như các trang HTML tĩnh, các file hình ảnh, css, js, ...
+
+_Ví dụ:_ Khai báo nhiều thư mục static trong một web, đoạn code sau sẽ tạo ra 3 thư mục static :
+
+```js
+app.use(express.static('public'))
+app.use(express.static('uploads'))
+app.use(express.static('files'))
+```
+
+**Third-party middleware:**
+
+Sử dụng Third-party sẽ giúp chúng ta thêm các chức năng cho Web App của mình mà không cần mất nhiều công implement
+
+Chúng ta sẽ cần cài đặt module thông qua `npm`, sau đó khai báo sử dụng trong đối tượng app nếu dùng ở Application-level, hoặc qua đối tượng router nếu dùng ở Router-level.
+
+_Ví dụ:_ Đoạn code sẽ cài đặt và sử dụng một middlware có tên là `cookie-parser` dùng để đọc cookies của request:
+
+```
+npm install cookie-parser
+```
+
+```js
+var express = require('express')
+var app = express()
+var cookieParser = require('cookie-parser')
+
+// load the cookie-parsing middleware
+app.use(cookieParser())
+```
+
 ## IV. RESTful API
 [:arrow_up: Mục lục](#mục-lục)
 
