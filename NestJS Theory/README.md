@@ -160,7 +160,7 @@ Vậy thì làm như thế nào? Chúng ta sẽ sử dụng các pattern: Factor
 
 DI gồm 3 thành phần chính: consumer, provider và injector
 
-<img src="https://github.com/user-attachments/assets/dd81d337-50df-433d-9d9a-2a3db20558f9" width="200px">
+<img src="https://github.com/user-attachments/assets/dd81d337-50df-433d-9d9a-2a3db20558f9" width="300px">
 
 Sử dụng decorator: `@Injectable()`
 
@@ -208,10 +208,133 @@ Giải pháp đặt ra là chia dự án thành các modules. 1 modules có th�
 - sự phát triển các modules có thể làm độc lập
 - on/off modules này không làm ảnh hưởng tới modules kia (nếu các modules không phụ thuộc vào nhau)
 
+### 4. MVC
+[:arrow_up: Mục lục](#mục-lục)
 
+**1. Template View Engine**
 
+Chúng ta có thể sử dụng thư viện EJS, Handlebars hoặc Pug để thực hiện
 
+_Ví dụ:_ Sử dụng thư viện EJS
 
+_Cài đặt:_
+
+```
+npm i --save-exact ejs@3.1.9
+yarn add ejs@3.1.9
+```
+
+```
+nest new [project_name]
+```
+
+Để có thể sử dụng ta thêm đoạn code sau `app.useStaticAssets()`, `app.setBaseViewsDir()` và ` app.setViewEngine()` vào chương trình đồng thời phải thêm kiểu generic cho `NestFactory.create(AppModule)` thành `NestFactory.create<NestExpressApplication>(AppModule)`
+
+```ts
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useStaticAssets(join(__dirname, '..', 'public')); // js, css, images
+  app.setBaseViewsDir(join(__dirname, '..', 'views')); // view
+  app.setViewEngine('ejs');
+  
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+_Cấu trúc thư mục:_
+
+```
+public
+views
+   └── home.ejs
+src
+   ├── app.module.ts
+   ├── app.controller.ts
+   ├── app.service.ts
+   └── main.ts
+   
+```
+
+Ta có file `home.ejs`
+
+```ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hello World</h1>
+</body>
+</html>
+```
+
+Để có thể render html từ `home.ejs` ta sử dụng decorator `@Render([.ejs file_name])`
+
+```ts
+// app.controller.ts
+import { Controller, Get, Render } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  @Render('home')
+  getHello() {}
+}
+```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/bf526c49-2e27-4e7d-bba8-be97e66c8a14" width="200px" >
+
+Để có thể `return` ra logic xử lý lên giao diện ta làm như sau:
+
+```ts
+// app.service.ts
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class AppService {
+  getName(): string {
+    return 'Hello World!';
+  }
+}
+```
+
+Ta sử dụng `this.appService.getName()` để có thể gọi hàm `getName()` do phía bên service xử lý.
+
+```ts
+// app.controller.ts
+import { Controller, Get, Render } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  @Render('home')
+  getHello() {
+    return { name: this.appService.getName() };
+  }
+}
+```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/5f1d267d-f1a8-4803-b625-835698044100" width="200px" >
 
 
 
