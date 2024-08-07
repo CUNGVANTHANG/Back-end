@@ -4,6 +4,15 @@
   <summary>Kiến thức cốt lõi</summary>
 
 - [Cài đặt](#cài-đặt)
+- [1. Cấu trúc dự án](#1-cấu-trúc-dự-án)
+- [2. Controller](#2-controller)
+- [3. Module](#3-module)
+
+</details>
+
+<details>
+  <summary>Kiến thức thực hành</summary>
+
 - [1. Chạy chương trình đầu tiên](#2-chạy-chương-trình-đầu-tiên)
 - [2. Pipes](#2-pipes)
 - [3. Provider](#3-provider)
@@ -38,6 +47,305 @@ nest new [tên_project]
 npm run start:dev
 ```
 
+### 1. Cấu trúc dự án
+[:arrow_up: Mục lục](#mục-lục)
+
+**Cấu trúc thư mục:**
+
+<img src="https://github.com/user-attachments/assets/9f18544b-1a75-4b29-941a-e4cb4674e98e" width="200px">
+
+- Thư mục dist: thư mục build của Nest.js
+
+- Thư mục test: viết code test
+
+- `.eslintrc.js` : config eslint, giúp check code khi viết theo cú pháp typescript
+
+- `.gitignore` : khai báo các file không muốn git quản lý
+
+- `.prettierrc` : config prettier, giúp viết code "đẹp hơn"
+
+- `nest-cli.json` : config Nest.js khi chạy CLI/build
+
+- `tsconfig.json` : khai báo cách dịch code typescript thành javascript (môi trường development)
+
+- `tsconfig.build.json` : khai báo cách dịch code typescript thành javascript (khi build với môi trường production)
+
+- `package.json`/`package-lock.json` : quản lý các thư viện cài đặt cho dự án
+
+**Kiến trúc:**
+
+<img src="https://github.com/user-attachments/assets/eb4c814c-24b5-4cf7-9f58-e1394ae2bc0b" width="500px">
+
+### 2. Controller
+[:arrow_up: Mục lục](#mục-lục)
+
+**Mô hình Router:**
+
+<img src="https://github.com/user-attachments/assets/5a0881c9-7dc7-4be8-949b-f5883aebbb36" width="500px">
+
+Bản chất của website, là xoay quanh URL (đường link user truy cập). Ở phía backend, URL chính là routes.
+
+_Ví dụ 1:_
+
+```ts
+import { Controller, Get, Delete } from '@nestjs/common';
+
+@Controller('user')
+export class UserController {
+  @Get()
+  findAll(): string {
+    return 'This action returns all users';
+  }
+  @Delete('/by-id')
+  findById(): string {
+    return 'This action will delete a user by id';
+  }
+}
+```
+
+Khi khai báo `@Controller('user')` => Nest sẽ hiểu là `"/user"`
+
+`@Get()` => không có tham số đính kèm => ứng với route `"/"`
+
+=> cộng gộp sẽ ra `GET "/user"`
+
+_Ví dụ 2:_
+
+```ts
+@Controller()
+@Get('/user) // => sinh ra route "/user"
+```
+
+```ts
+@Controller("user1")
+@Get('/filter-by-name) // => sinh ra route "/user1/filter-by-name"
+```
+
+### 3. Module
+[:arrow_up: Mục lục](#mục-lục)
+
+**1. Inversion of Control (IoC)**
+
+_Ví dụ:_ Vấn đề hay gặp (minh họa)
+
+```java
+public class B {
+    public SomeMethod() {
+        //doing something..
+    }
+}
+```
+
+```java
+public class A {
+    B b;
+
+    public A() {
+        b = new B();
+    }
+
+    public void Task1() {
+        // do something here..
+        b.SomeMethod();
+        // do something here..
+    }
+}
+```
+
+Ta có thể thấy A phụ thuộc vào B. Điều này ảnh hưởng rất nhiều đến với dự án thương mại. Khi mà có nhiều class, và nhiều class bị phụ thuộc lẫn nhau dẫn đến khó kiểm soát và không thể test được. Vì vậy khái niệm IoC ra đời để giải quyết bài toán này. IoC là một kỹ thuật trong lập trình có thể "giảm thiểu" sự phụ thuộc giữa các class với nhau.
+
+Vậy thì làm như thế nào? Chúng ta sẽ sử dụng các pattern: Factory, Dependencies Injections...
+
+**2. Dependencies Injection (DI)**
+
+DI gồm 3 thành phần chính: consumer, provider và injector
+
+<img src="https://github.com/user-attachments/assets/dd81d337-50df-433d-9d9a-2a3db20558f9" width="300px">
+
+Sử dụng decorator: `@Injectable()`
+
+**Về scope:**
+- Nếu inject vào 1 modules cụ thể => chỉ có mình modules đấy sử dụng.
+- Nếu inject vào root modules => tất cả có thể dùng
+
+Có **3 level** của DI:
+- Constructor Injection
+- Property Injection
+- Method Injection
+
+**Constructor Injection:**
+
+- Cách viết đầy đủ:
+
+```ts
+@Controller('cats')
+export class CatsController {
+    private catsService: CatsService;
+
+    constructor(service: CatsService) {
+        this.catsService = service;
+    }
+}
+```
+
+- Cách viết rút gọn:
+
+```ts
+@Controller('cats')
+export class CatsController {
+    constructor(private catsService: CatsService) {}
+}
+```
+
+**3. Module**
+
+Khi bạn phát triển ứng dụng nhỏ, chúng ta có thể code "all-in-one" (tất cả code trong 1 file/1 thư mục/1 project). Với dự án lớn, chúng ta không thể làm vậy, vì không thể đọc code (code quá nhiều), không thể test/maintain
+
+Giải pháp đặt ra là chia dự án thành các modules. 1 modules có thể là 1 tính năng hoặc 1 nhóm tính năng có liên quan tới nhau
+
+Ưu điểm lớn nhất của cách làm này:
+
+- sự phát triển các modules có thể làm độc lập
+- on/off modules này không làm ảnh hưởng tới modules kia (nếu các modules không phụ thuộc vào nhau)
+
+### 4. MVC
+[:arrow_up: Mục lục](#mục-lục)
+
+**1. Template View Engine**
+
+Chúng ta có thể sử dụng thư viện EJS, Handlebars hoặc Pug để thực hiện
+
+_Ví dụ:_ Sử dụng thư viện EJS
+
+_Cài đặt:_
+
+```
+npm i --save-exact ejs@3.1.9
+yarn add ejs@3.1.9
+```
+
+```
+nest new [project_name]
+```
+
+Để có thể sử dụng ta thêm đoạn code sau `app.useStaticAssets()`, `app.setBaseViewsDir()` và ` app.setViewEngine()` vào chương trình đồng thời phải thêm kiểu generic cho `NestFactory.create(AppModule)` thành `NestFactory.create<NestExpressApplication>(AppModule)`
+
+```ts
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useStaticAssets(join(__dirname, '..', 'public')); // js, css, images
+  app.setBaseViewsDir(join(__dirname, '..', 'views')); // view
+  app.setViewEngine('ejs');
+  
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+_Cấu trúc thư mục:_
+
+```
+public
+views
+   └── home.ejs
+src
+   ├── app.module.ts
+   ├── app.controller.ts
+   ├── app.service.ts
+   └── main.ts
+   
+```
+
+Ta có file `home.ejs`
+
+```ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Hello World</h1>
+</body>
+</html>
+```
+
+Để có thể render html từ `home.ejs` ta sử dụng decorator `@Render([.ejs file_name])`
+
+```ts
+// app.controller.ts
+import { Controller, Get, Render } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  @Render('home')
+  getHello() {}
+}
+```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/bf526c49-2e27-4e7d-bba8-be97e66c8a14" width="200px" >
+
+Để có thể `return` ra logic xử lý lên giao diện ta làm như sau:
+
+```ts
+// app.service.ts
+import { Injectable } from '@nestjs/common';
+
+@Injectable()
+export class AppService {
+  getName(): string {
+    return 'Hello World!';
+  }
+}
+```
+
+Ta sử dụng `this.appService.getName()` để có thể gọi hàm `getName()` do phía bên service xử lý.
+
+```ts
+// app.controller.ts
+import { Controller, Get, Render } from '@nestjs/common';
+import { AppService } from './app.service';
+
+@Controller()
+export class AppController {
+  constructor(private readonly appService: AppService) {}
+
+  @Get()
+  @Render('home')
+  getHello() {
+    return { name: this.appService.getName() };
+  }
+}
+```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/5f1d267d-f1a8-4803-b625-835698044100" width="200px" >
+
+
+
+
+
+
+
+
+
+
+## II. Kiến thức thực hành
 ### 1. Chạy chương trình đầu tiên
 [:arrow_up: Mục lục](#mục-lục)
 

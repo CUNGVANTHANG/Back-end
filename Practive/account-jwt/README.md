@@ -145,6 +145,14 @@ export default configureStore({
 - Access token là token dùng để xác thực người dùng
 - Refresh token là token dự trữ có tác dụng tạo access token mới khi access token hết hạn
 
+**Cơ chế**
+
+<img src="https://github.com/user-attachments/assets/299ee4fd-7dd4-4fbf-8e8f-58b069eb4e22" width="500px">
+
+<img src="https://github.com/user-attachments/assets/963343d4-2b8a-4fc7-b092-092598b41937" width="500px">
+
+<img src="https://github.com/user-attachments/assets/d671322b-1f7e-4935-ad83-88fb19fdfbc7" width="500px">
+
 **Code**
 
 - bcrypt dùng hash password
