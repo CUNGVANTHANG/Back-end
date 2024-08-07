@@ -7,6 +7,8 @@
 - MongoDB (connect using mongoose)
 
 #### Frontend
+- Redux Toolkit
+  - Redux Persist (Sử dụng để giữ lại state trong store khi reload trang)
 
 ## 2. Function
 
@@ -15,8 +17,21 @@
 - Xác thực
 - Phân quyền
 
-## 3. Config
+## 3. Settings
+#### Backend
 
+```
+npm i bcrypt cookie-parser cors dotenv jsonwebtoken mongoose
+```
+
+#### Frontend
+
+```
+npm i jwt-decode axios react-router-dom @reduxjs/toolkit redux react-redux redux-persist
+```
+
+## 4. Config
+#### Backend
 ```env
 # .env
 MONGODB_URI = mongodb+srv://mobigame2k3:fgkpixVnAVEjpX59@cluster0.x5cc3dy.mongodb.net/
@@ -77,7 +92,41 @@ const userSchema = new mongoose.Schema(
 module.exports = mongoose.model("User", userSchema);
 ```
 
-## 4. Knowledge
+#### Frontend
+
+```js
+// index.js
+import React from "react";
+import ReactDOM from "react-dom";
+import App from "./App";
+import { Provider } from "react-redux";
+import store from "./redux/store";
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
+);
+```
+
+```ts
+// store.js
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./authSlice";
+import userReducer from "./userSlice";
+
+export default configureStore({
+  reducer: {
+    auth: authReducer,
+    users: userReducer,
+  },
+});
+```
+
+
+
+## 5. Knowledge
 
 **Authentication** hiểu đơn giản là so sánh dữ liệu nhập với dữ liệu trong database
 

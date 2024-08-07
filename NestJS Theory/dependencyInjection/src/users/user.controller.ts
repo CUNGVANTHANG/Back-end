@@ -9,7 +9,7 @@ export class UserController {
 
     @Post() // Gửi dữ liệu từ body
     createUser(@Body() user: UserDto): UserDto {
-        return this.userService.create(user);
+        return this.userService.createUser(user);
     }
 
     @Get(":id")

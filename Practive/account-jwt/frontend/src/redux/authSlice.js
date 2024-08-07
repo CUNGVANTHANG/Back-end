@@ -40,6 +40,19 @@ const authSlidce = createSlice({
       state.register.success = false;
       state.register.error = true;
     },
+    logoutStart: (state) => {
+      state.login.isFetching = true;
+      state.login.error = false;
+    },
+    logoutSuccess: (state) => {
+      state.login.isFetching = false;
+      state.login.currentUser = null;
+      state.login.error = false;
+    },
+    logoutFailure: (state) => {
+      state.login.isFetching = false;
+      state.login.error = true;
+    },
   },
 });
 
@@ -50,6 +63,9 @@ export const {
   registerStart,
   registerSuccess,
   registerFailure,
+  logoutStart,
+  logoutSuccess,
+  logoutFailure,
 } = authSlidce.actions;
 
 export default authSlidce.reducer;
