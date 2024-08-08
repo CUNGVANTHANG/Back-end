@@ -1,70 +1,85 @@
-# Getting Started with Create React App
+## Using
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Config
 
-## Available Scripts
+- Vào https://firebase.google.com/. Vào **Project settings**
 
-In the project directory, you can run:
+<img src="https://github.com/user-attachments/assets/95bee1ac-76db-40cc-a7b2-fd28e8c8ca6a" width="500px" >
 
-### `npm start`
+- Chúng ta cần phải cài đặt thư viện firebase vào dự án
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+npm install firebase
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Copy đoạn code trong phần tutorial ở phía dưới
 
-### `npm test`
+```js
+const firebaseConfig = {
+  apiKey: "AIzaSyCIrq3jrqeSHOOC-J_g31FLbHh9fhRXtTo",
+  authDomain: "chat-app-ca301.firebaseapp.com",
+  projectId: "chat-app-ca301",
+  storageBucket: "chat-app-ca301.appspot.com",
+  messagingSenderId: "365404581577",
+  appId: "1:365404581577:web:4d0135bfb9eb4819852718",
+  measurementId: "G-E5G4FTZGEC"
+};
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Ta config trong file `config.js`
 
-### `npm run build`
+```js
+import firebase from "firebase/app";
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+import "firebase/analytics";
+import "firebase/auth";
+import "firebase/firestore";
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+const firebaseConfig = {
+  apiKey: "AIzaSyCIrq3jrqeSHOOC-J_g31FLbHh9fhRXtTo",
+  authDomain: "chat-app-ca301.firebaseapp.com",
+  projectId: "chat-app-ca301",
+  storageBucket: "chat-app-ca301.appspot.com",
+  messagingSenderId: "365404581577",
+  appId: "1:365404581577:web:4d0135bfb9eb4819852718",
+  measurementId: "G-E5G4FTZGEC",
+};
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.analytics();
 
-### `npm run eject`
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+export { db, auth };
+export default firebase;
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- Ta vào phần **Authentication** trong firebase
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+<img src="https://github.com/user-attachments/assets/5fde0fd5-9f28-4970-8c3d-d4c8e5f33817" width="500px" >
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Tiếp theo ta vào trang https://developers.facebook.com/, rồi tạo ứng dụng. Sau khi tạo xong ta vào phần **Cài đặt ứng dụng** -> **Thông tin cơ bản**
 
-## Learn More
+<img src="https://github.com/user-attachments/assets/44af4ce8-287e-43f3-b3f2-8c4ec2592c8f" width="300px" >
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+<img src="https://github.com/user-attachments/assets/5a6293a8-c618-437e-9946-33d2f4759178" width="600px" >
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Xong đó vào lấy **ID ứng dụng** và **Khóa bí mật của ứng dụng** paste vào đây
 
-### Code Splitting
+<img src="https://github.com/user-attachments/assets/c6ab3011-d501-474a-b9f3-8c71a3e1c14f" width="500px" >
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Đồng thời copy URI này. Vào phần **Trường hợp sử dụng** để chỉnh sửa
 
-### Analyzing the Bundle Size
+<img src="https://github.com/user-attachments/assets/35e0a68d-e267-4c61-95fe-f827be2e6308" width="500px" >
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+<img src="https://github.com/user-attachments/assets/9f6b706b-809e-43d6-852c-50dda7b95eb3" width="400px" >
 
-### Making a Progressive Web App
+Vào **URI chuyển hướng OAuth hợp lệ** paste ra
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+<img src="https://github.com/user-attachments/assets/0def4d3a-7770-4f74-9b5b-f0146d4d92d8" width="500px" >
 
-### Advanced Configuration
+Đến khi hiển thị như này là **thành công**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+<img src="https://github.com/user-attachments/assets/41e053a8-cb1c-4d64-ab78-2817f4487f94" width="500px" >
