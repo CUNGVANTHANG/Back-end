@@ -82,4 +82,4 @@ Vào **URI chuyển hướng OAuth hợp lệ** paste ra
 
 Đến khi hiển thị như này là **thành công**
 
-<img src="https://github.com/user-attachments/assets/41e053a8-cb1c-4d64-ab78-2817f4487f94" width="500px" >
+<img src="https://github.com/user-attachments/assets/41e053a8-cb1c-4d64-ab78-2817f4487f94" width="300px" >
