@@ -343,15 +343,239 @@ _Kết quả:_
 
 #### 1. MongoDB
 
+Tham khảo tại: https://docs.nestjs.com/techniques/mongodb
+
 _Cài đặt:_ Có `@9.2.2` hay `@7.1.1` là sử dụng phiên bản, nếu không có sẽ tự động tải phiên bản mới nhất
 
 ```
 npm install --save-exact @nestjs/mongoose@9.2.2 mongoose@7.1.1
 ```
 
+Có 2 cách để cài đặt và sử dụng MongoDB:
+
+1. Thông qua Docker
+2. Thông qua MongoDB Server (https://cloud.mongodb.com/)
+
+Ta cần import vào `app.module.ts` thì sẽ sử dụng được tất cả ở các module khác
+
+```ts
+// app.module.ts
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { MongooseModule } from '@nestjs/mongoose';
+
+@Module({
+  imports: [
+    MongooseModule.forRoot(
+      'mongodb+srv://mobigame2k3:fgkpixVnAVEjpX59@cluster0.x5cc3dy.mongodb.net/',
+    ),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
 
 ### 6. ENV Variables
 [:arrow_up: Mục lục](#mục-lục)
+
+- **Đối với dự án bé:**
+
+_Cài đặt:_ `@16.0.3` là lựa chọn phiên bản, nếu không lựa chọn nó sẽ tự động tải phiên bản mới nhất
+
+```
+npm install dotenv@16.0.3
+```
+
+Trong file `main.ts` chúng ta cần thêm
+
+```ts
+require('dotenv').config();
+```
+
+Tạo file `.env` ở level root, và để truy cập 1 biến, chúng ta sử dụng cú pháp:
+
+```
+process.env.VARIABLE_NAME
+```
+
+_Ví dụ:_
+
+```ts
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+require('dotenv').config();
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  app.useStaticAssets(join(__dirname, '..', 'public')); // js, css, images
+  app.setBaseViewsDir(join(__dirname, '..', 'views')); // view
+  app.setViewEngine('ejs');
+
+  await app.listen(process.env.PORT);
+}
+bootstrap();
+```
+
+- **Đối với dự án lớn**
+
+Giải thích: Trong 1 dự án lớn, đôi khi chúng ta cần: Nhiều hơn 1 file `.env`, ví dụ mỗi môi trường sử dụng là 1 file `.env`
+
+1. Môi trường test: `.env.test`
+2. Môi trường development: `.env.development`
+3. Môi trường uat: `.env.uat`
+4. Môi trường production: `.env.production`
+
+Chúng ta muốn validate dữ liệu của biến trong `.env` . Cách làm truyền thống, sử dụng trực tiếp `.env` là không làm được
+
+Tham khảo tại: https://docs.nestjs.com/techniques/configuration
+
+_Cài đặt:_ `@2.3.1` là lựa chọn phiên bản, nếu không lựa chọn nó sẽ tự động tải phiên bản mới nhất
+
+```
+npm i --save-exact @nestjs/config@2.3.1
+yarn add @nestjs/config@2.3.1
+```
+
+Về bản chất, Config Service cũng sử dụng thư viện `.env`, tuy nhiên, nó đã "code thêm" để giải quyết 2 vấn đề chúng ta nêu ở trên (sử dụng nhiều file `.env` và validate file `.env`)
+
+Sau đó cần thêm vào `app.module.ts` để có thể sử dụng ở mọi module
+
+```ts
+ConfigModule.forRoot({
+      isGlobal: true,
+}),
+```
+
+_Ví dụ:_
+
+```ts
+// app.module.ts
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
+
+@Module({
+  imports: [
+    MongooseModule.forRoot(
+      'mongodb+srv://mobigame2k3:fgkpixVnAVEjpX59@cluster0.x5cc3dy.mongodb.net/',
+    ),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+Cách sử dụng variable, đối với file `.controller.ts` ta làm như sau: Đầu tiên ta cần khởi tạo `private configService: ConfigService` trong contructor, tiếp theo để sử dụng được ta sử dụng từ khóa `this` như sau `this.configService.get<string>('PORT')`
+
+```env
+PORT=3000
+```
+
+```ts
+// app.controller.ts
+import { Controller, Get, Render } from '@nestjs/common';
+import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
+
+@Controller()
+export class AppController {
+  constructor(
+    private readonly appService: AppService,
+    private configService: ConfigService,
+  ) {}
+
+  @Get()
+  @Render('home')
+  getHello() {
+    console.log('PORT:', this.configService.get<string>('PORT')); // PORT:  3000
+    return { name: this.appService.getName() };
+  }
+}
+```
+
+Cách sử dụng variable, đối với file `main.ts` ta làm như sau: Ta cần khai báo `const configService = app.get(ConfigService);` và sử dụng `configService.get<string>('PORT')` để lấy ra
+
+```ts
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.get(ConfigService);
+  app.useStaticAssets(join(__dirname, '..', 'public')); // js, css, images
+  app.setBaseViewsDir(join(__dirname, '..', 'views')); // view
+  app.setViewEngine('ejs');
+
+  await app.listen(configService.get<string>('PORT'));
+}
+bootstrap();
+```
+
+Vậy sử dụng trong `.module.ts` thì làm thế nào?
+
+Tham khảo thêm tại: https://docs.nestjs.com/techniques/mongodb#async-configuration
+
+Ta cần thêm đoạn code sau:
+
+```ts
+MongooseModule.forRootAsync({
+  imports: [ConfigModule],
+  useFactory: async (configService: ConfigService) => ({
+    uri: configService.get<string>('MONGODB_URI'),
+  }),
+  inject: [ConfigService],
+})
+```
+
+_Ví dụ:_
+
+```env
+PORT=6969
+MONGODB_URI="mongodb+srv://mobigame2k3:fgkpixVnAVEjpX59@cluster0.x5cc3dy.mongodb.net/"
+```
+
+```ts
+// app.module.ts
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+@Module({
+  imports: [
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGODB_URI'),
+      }),
+      inject: [ConfigService],
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+  ],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
 
 
 
