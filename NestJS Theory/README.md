@@ -12,6 +12,7 @@
   - [5.1. MongoDB](#51-mongodb)
   - [5.2. MySQL](#52-mysql)
 - [6. ENV Variables](#6-env-variables)
+- [7. Restful API](#7-restful-api)
 
 </details>
 
@@ -581,6 +582,8 @@ export class AppModule {}
 
 ### 7. Restful API
 [:arrow_up: Mục lục](#mục-lục)
+
+
 
 ### 7.1. Config
 [:arrow_up: Mục lục](#mục-lục)
