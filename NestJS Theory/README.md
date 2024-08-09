@@ -7,6 +7,9 @@
 - [1. Cấu trúc dự án](#1-cấu-trúc-dự-án)
 - [2. Controller](#2-controller)
 - [3. Module](#3-module)
+- [4. MVC](#4-mvc)
+- [5. Connect Database](#4-connect-database)
+- [6. ENV Variables](#5-env-variables)
 
 </details>
 
@@ -17,7 +20,6 @@
 - [2. Pipes](#2-pipes)
 - [3. Provider](#3-provider)
 - [4. TypeORM](#4-typeorm)
-- [5. Prisma](#5-prisma)
 
 </details>
 
@@ -336,6 +338,20 @@ _Kết quả:_
 
 <img src="https://github.com/user-attachments/assets/5f1d267d-f1a8-4803-b625-835698044100" width="200px" >
 
+### 5. Connect Database
+[:arrow_up: Mục lục](#mục-lục)
+
+#### 1. MongoDB
+
+_Cài đặt:_ Có `@9.2.2` hay `@7.1.1` là sử dụng phiên bản, nếu không có sẽ tự động tải phiên bản mới nhất
+
+```
+npm install --save-exact @nestjs/mongoose@9.2.2 mongoose@7.1.1
+```
+
+
+### 6. ENV Variables
+[:arrow_up: Mục lục](#mục-lục)
 
 
 
