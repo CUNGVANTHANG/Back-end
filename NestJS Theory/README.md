@@ -8,8 +8,10 @@
 - [2. Controller](#2-controller)
 - [3. Module](#3-module)
 - [4. MVC](#4-mvc)
-- [5. Connect Database](#4-connect-database)
-- [6. ENV Variables](#5-env-variables)
+- [5. Connect Database](#5-connect-database)
+  - [5.1. MongoDB](#51-mongodb)
+  - [5.2. MySQL](#52-mysql)
+- [6. ENV Variables](#6-env-variables)
 
 </details>
 
@@ -341,7 +343,8 @@ _Kết quả:_
 ### 5. Connect Database
 [:arrow_up: Mục lục](#mục-lục)
 
-#### 1. MongoDB
+#### 5.1. MongoDB
+[:arrow_up: Mục lục](#mục-lục)
 
 Tham khảo tại: https://docs.nestjs.com/techniques/mongodb
 
@@ -575,6 +578,152 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 })
 export class AppModule {}
 ```
+
+### 7. Restful API
+[:arrow_up: Mục lục](#mục-lục)
+
+### 7.1. Config
+[:arrow_up: Mục lục](#mục-lục)
+
+Đầu tiên về generate resources:
+
+Tham khảo tại: https://docs.nestjs.com/recipes/crud-generator
+
+Ta sử dụng câu lệnh:
+
+```
+nest g resource users --no-spec
+```
+
+Kết quả:
+
+![image](https://github.com/user-attachments/assets/487c2e11-56c2-4f55-976b-b175b6af42d6)
+
+Tiếp theo chúng ta cần chú ý cách đặt tên và thư mục dự án SQL và NoSQL
+
+| SQL | NoSQL |
+|:--: | :--: | 
+| ![image](https://github.com/user-attachments/assets/b27149fa-9824-4b3d-beac-126706d0b89b) | ![image](https://github.com/user-attachments/assets/c8ec26cd-e083-4259-ba15-ff53b821dad2)
+ |
+
+### 7.2. Model
+[:arrow_up: Mục lục](#mục-lục)
+
+Ta làm như sau: `@Prop()` chỉ đây là thuộc tính, `required: true` nghĩa là trường này bắt buộc phải nhập
+
+```ts
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type UserDocument = HydratedDocument<User>;
+
+@Schema()
+export class User {
+  @Prop({ required: true })
+  email: string;
+
+  @Prop({ required: true })
+  password: number;
+
+  @Prop()
+  name: string;
+
+  @Prop()
+  phone: string;
+
+  @Prop()
+  age: number;
+
+  @Prop()
+  address: string;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
+}
+
+export const UserSchema = SchemaFactory.createForClass(User);
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
