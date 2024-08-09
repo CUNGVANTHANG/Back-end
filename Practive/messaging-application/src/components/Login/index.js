@@ -1,15 +1,25 @@
 import React from "react";
-import { Row, Col, Typography, Button } from "antd"; // Bố cục trong antd được chia thành 24 cột, flex box
+import { Row, Col, Typography, Button } from "antd";
 import firebase, { auth } from "../../firebase/config";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
-const fbProvider = firebase.auth.FacebookAuthProvider();
+const fbProvider = new firebase.auth.FacebookAuthProvider();
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const handleFbLogin = () => {
     auth.signInWithPopup(fbProvider);
   };
+
+  auth.onAuthStateChanged((user) => {
+    console.log({ user });
+    if (user) {
+      navigate("/");
+    }
+  });
 
   return (
     <div>
