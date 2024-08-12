@@ -7,12 +7,12 @@
 - [1. Cấu trúc dự án](#1-cấu-trúc-dự-án)
 - [2. Controller](#2-controller)
 - [3. Module](#3-module)
-- [4. MVC](#4-mvc)
+- [4. Template View Engine](#4-template-view-engine)
 - [5. Connect Database](#5-connect-database)
   - [5.1. MongoDB](#51-mongodb)
   - [5.2. MySQL](#52-mysql)
 - [6. ENV Variables](#6-env-variables)
-- [7. Restful API](#7-restful-api)
+- [7. Restful API - MongoDB](#7-restful-api---mongodb)
   - [7.1. Config](#71-config)
   - [7.2. Model](#72-model)
   - [7.3. Hash password](#73-hash-password)
@@ -221,10 +221,8 @@ Giải pháp đặt ra là chia dự án thành các modules. 1 modules có th�
 - sự phát triển các modules có thể làm độc lập
 - on/off modules này không làm ảnh hưởng tới modules kia (nếu các modules không phụ thuộc vào nhau)
 
-### 4. MVC
+### 4. Template View Engine
 [:arrow_up: Mục lục](#mục-lục)
-
-**1. Template View Engine**
 
 Chúng ta có thể sử dụng thư viện EJS, Handlebars hoặc Pug để thực hiện
 
@@ -588,7 +586,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 export class AppModule {}
 ```
 
-### 7. Restful API
+### 7. Restful API - MongoDB
 [:arrow_up: Mục lục](#mục-lục)
 
 Cấu trúc thư mục:
@@ -940,7 +938,7 @@ export class CreateUserDto {
 ```
 
 ```ts
-// users.controller.ts
+// user.controller.ts
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
@@ -968,7 +966,7 @@ export class CreateUserDto {
 #### 2. Read
 
 ```ts
-// users.controller.ts
+// user.controller.ts
   @Get()
   findAll() {
     return this.usersService.findAll();
@@ -998,8 +996,59 @@ export class CreateUserDto {
 
 #### 3. Update
 
+`OmitType()` giúp ta có thể loại bỏ đi trường dữ liệu không cần update. Như ví dụ dưới là trường password sẽ không được update
+
+```ts
+// update-user.dto.ts
+import { OmitType } from '@nestjs/mapped-types';
+import { CreateUserDto } from './create-user.dto';
+
+export class UpdateUserDto extends OmitType(CreateUserDto, [
+  'password',
+] as const) {
+  _id: string;
+}
+```
+
+```ts
+// user.controller.ts
+@Patch()
+  update(@Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(updateUserDto);
+  }
+```
+
+```ts
+// user.service.ts
+async update(updateUserDto: UpdateUserDto) {
+    return await this.userModule.updateOne(
+      { _id: updateUserDto._id },
+      { ...updateUserDto },
+    );
+  }
+```
+
 #### 4. Delete
 
+```ts
+// user.controller.ts
+@Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(id);
+  }
+```
+
+```ts
+// user.service.ts
+remove(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return 'Not found user';
+    }
+    return this.userModule.deleteOne({
+      _id: id,
+    });
+  }
+```
 
 
 
@@ -1017,7 +1066,10 @@ export class CreateUserDto {
 
 
 
-
+@Patch()
+  update(@Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(updateUserDto);
+  }
 
 
 
@@ -1843,6 +1895,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 })
 export class AppModule {}
 ```
+
+Sử dụng `app.useGlobalPipes` để có thể validation dữ liệu
 
 ```ts
 // main.ts
