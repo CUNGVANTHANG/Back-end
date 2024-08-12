@@ -18,6 +18,7 @@
   - [7.3. Hash password](#73-hash-password)
   - [7.4. DTO - Data Transfer Object](#74-dto---data-transfer-object)
   - [7.5. Pipe](#75-pipe)
+  - [7.6. CRUD](#76-crud)
 - [8. Stateful và Stateless](#8-stateful-và-stateless)
 - [9. JWT - JSON Web Token](#9-jwt---json-web-token)
 
@@ -895,7 +896,7 @@ async function bootstrap() {
 bootstrap();
 ```
 
-```
+```ts
 // create-user.dto.ts
 import { IsEmail, IsNotEmpty } from 'class-validator';
 
@@ -916,10 +917,88 @@ _Kết quả:_
 
 <img src="https://github.com/user-attachments/assets/2e10a443-9bb6-4553-85bd-04c147ff7ff3" width="300px" >
 
+### 7.6. CRUD
+[:arrow_up: Mục lục](#mục-lục)
 
+#### 1. Create
 
+```ts
+// create-user.dto.ts
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
+export class CreateUserDto {
+  @IsEmail({}, { message: 'Email không đúng định dạng' })
+  @IsNotEmpty({ message: 'Email không được để trống' })
+  email: string;
 
+  @IsNotEmpty({ message: 'Password không được để trống' })
+  password: string;
+
+  name: string;
+  address: string;
+}
+```
+
+```ts
+// users.controller.ts
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+```
+
+```ts
+// user.service.ts
+  getHashPassword = (password: string) => {
+    const salt = genSaltSync(10);
+    const hash = hashSync(password, salt);
+    return hash;
+  };
+
+  async create(createUserDto: CreateUserDto) {
+    let user = await this.userModule.create({
+      email: createUserDto.email,
+      password: this.getHashPassword(createUserDto.password),
+      name: createUserDto.name,
+    });
+    return user;
+  }
+```
+
+#### 2. Read
+
+```ts
+// users.controller.ts
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne(id);
+  }
+```
+
+```ts
+// user.service.ts
+  findAll() {
+    return this.userModule.find();
+  }
+
+  findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return 'Not found user';
+    }
+    return this.userModule.findOne({
+      _id: id,
+    });
+  }
+```
+
+#### 3. Update
+
+#### 4. Delete
 
 
 
@@ -1008,7 +1087,7 @@ src
 ├── app.module.ts
 ├── main.ts
 └── users
-    ├── user.controller.ts
+    ├── users.controller.ts
     └── user.module.ts
 ```
 
