@@ -33,22 +33,18 @@
 </details>
 
 <details>
-  <summary>Xây dựng website</summary>
+  <summary>Kiến thức xây dựng website</summary>
 
 - [I. MVC](#i-mvc)
   - [1. Routes & Controllers](#1-routes--controllers)
   - [2. Model](#2-model)
 - [II. CRUD](#ii-crud)
 - [III. Middleware](#iii-middleware)
-- [IV. RESTful API](#iv-restful-api)
-- [V. Cookies và Seasion](#v-cookies-và-seasion)
-- [VI. CORS Policy](#vi-cors-policy)
-- [VII. JWT](#vii-jwt)
-- [VIII. Redis](#viii-redis)
-- [IX. WebSocket](#ix-websocket)
 
 </details>
 
+
+# Kiến thức cốt lõi
 ## I. HTTP Protocol
 
 [:arrow_up: Mục lục](#mục-lục)
@@ -748,6 +744,7 @@ Khi bấm submit ra sẽ được kết quả ở **Form Data**
 
 <img src="https://github.com/CUNGVANTHANG/Back-end/assets/96326479/c183d92d-522e-4cd0-9058-44e182061329" height=200px>
 
+# Kiến thức xây dựng website
 ## I. MVC
 [:arrow_up: Mục lục](#mục-lục)
 
@@ -1027,6 +1024,7 @@ Ta có thể hiểu là từ config để kết nối, xong xây dựng model đ
 ## II. CRUD
 [:arrow_up: Mục lục](#mục-lục)
 
+
 ## III. Middleware
 [:arrow_up: Mục lục](#mục-lục)
 
@@ -1132,21 +1130,5 @@ var cookieParser = require('cookie-parser')
 app.use(cookieParser())
 ```
 
-## IV. RESTful API
-[:arrow_up: Mục lục](#mục-lục)
 
-## V. Cookies và Seasion
-[:arrow_up: Mục lục](#mục-lục)
-
-## VI. CORS Policy
-[:arrow_up: Mục lục](#mục-lục)
-
-## VII. JWT
-[:arrow_up: Mục lục](#mục-lục)
-
-## VIII. Redis
-[:arrow_up: Mục lục](#mục-lục)
-
-## IX. WebSocket
-[:arrow_up: Mục lục](#mục-lục)
 
