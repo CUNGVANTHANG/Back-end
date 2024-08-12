@@ -678,6 +678,10 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 Tiếp theo ta có file `user.controller.ts`. Trong đó `@Body` được hiểu là `req.body` nghĩa là truyền body
 
+Tham khảo thêm tại đây: https://docs.nestjs.com/controllers
+
+<img src="https://github.com/user-attachments/assets/4e227d0a-c89c-465e-b930-6247e7da03f7" width="500px">
+
 ```ts
 // user.controller.ts
 import {
@@ -768,6 +772,8 @@ _Kết quả:_
 ### 7.3. Hash password
 [:arrow_up: Mục lục](#mục-lục)
 
+Tham khảo tại: https://www.npmjs.com/package/bcryptjs
+
 Cài đặt thư viện `bcryptjs` là một trong những thư viện giúp ta hash password. `@2.4.3` là phiên bản, nếu không khai báo phiên bản sẽ tự động cài phiên bản mới nhất
 
 ```
@@ -798,12 +804,117 @@ _Kết quả:_
 ### 7.4. DTO - Data Transfer Object
 [:arrow_up: Mục lục](#mục-lục)
 
+DTO là 1 object định nghĩa hình dạng dữ liệu được "transfer" (frontend và backend)
+
+_Lưu ý:_ Sử dụng class, thay vì type hay interface
+
+```ts
+// user.controller.ts
+@Post()
+  create(
+    @Body('email') email: string,
+    @Body('password') password: string,
+    @Body('name') name: string,
+  ) {
+    return this.usersService.create(email, password, name);
+  }
+```
+
+Ta có thể thấy nếu có nhiều trường dữ liệu thì `create()` sẽ có rất nhiều parameters. Điều đó thực sự không tốt. 
+
+```ts
+// create-user.dto.ts
+export class CreateUserDto {
+    email: string;
+    password: string;
+    name: string;
+    address: string;
+}
+```
+
+Ta sử dụng `.dto` để cải thiện điều đó. Ta có thể thấy code sẽ gọn gàng và dễ hiểu hơn
+
+```ts
+// user.service.ts
+async create(createUserDto: CreateUserDto) {
+    let user = await this.userModule.create({
+      email: createUserDto.email,
+      password: this.getHashPassword(createUserDto.password),
+      name: createUserDto.name,
+    });
+    return user;
+  }
+```
+
+```ts
+// user.controller.ts
+@Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+```
 
 ### 7.5. Pipe
 [:arrow_up: Mục lục](#mục-lục)
 
+Tham khảo tại: https://docs.nestjs.com/pipes
 
+Pipe có 2 tác dụng:
 
+- Transform data
+- Validate data
+
+_Cài đặt thư viện:_ Trong đó `@` là phiên bản ta muốn, nếu không có thì sẽ tự động cài phiên bản mới nhất
+
+```
+npm i --save-exact class-validator@0.14.0 class-transformer@0.5.1
+```
+
+Tiếp theo để có thể sử dụng được ta cần khai báo `app.useGlobalPipes(new ValidationPipe())` trong `main.ts`
+
+```ts
+// main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.get(ConfigService);
+  app.useStaticAssets(join(__dirname, '..', 'public')); // js, css, images
+  app.setBaseViewsDir(join(__dirname, '..', 'views')); // view
+  app.setViewEngine('ejs');
+
+  app.useGlobalPipes(new ValidationPipe());
+
+  await app.listen(configService.get<string>('PORT'));
+}
+bootstrap();
+```
+
+```
+// create-user.dto.ts
+import { IsEmail, IsNotEmpty } from 'class-validator';
+
+export class CreateUserDto {
+  @IsEmail({}, { message: 'Email không đúng định dạng' })
+  @IsNotEmpty({ message: 'Email không được để trống' })
+  email: string;
+
+  @IsNotEmpty({ message: 'Password không được để trống' })
+  password: string;
+
+  name: string;
+  address: string;
+}
+```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/2e10a443-9bb6-4553-85bd-04c147ff7ff3" width="300px" >
 
 
 
