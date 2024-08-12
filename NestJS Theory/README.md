@@ -693,8 +693,12 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  create(
+    @Body('email') email: string,
+    @Body('password') password: string,
+    @Body('name') name: string,
+  ) {
+    return this.usersService.create(email, password, name);
   }
 
   @Get()
@@ -731,7 +735,7 @@ export class UsersController {
 
 Ta hiểu là `const myEmail: string = req.body.email`
 
-Tiếp theo chúng ta cần hiểu được cách truy cập vào mongodb bằng cách `imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])` vào module.
+Tiếp theo chúng ta cần hiểu được cách truy cập vào mongodb bằng cách `imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])` vào module. Việc này giúp khai báo trước khi sử dụng
 
 ```ts
 // user.module.ts
@@ -751,6 +755,76 @@ import { User, UserSchema } from './schemas/user.schema';
 export class UsersModule {}
 ```
 
+Tiếp theo để có thể lưu được trong database ta cần tạo phương thức `async...await` để có thể lưu vào thông qua service. Sử dụng contructor có `@InjectModel` cho biết service đang sử dụng model (sử dụng mongodb)
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from './schemas/user.schema';
+import { Model } from 'mongoose';
+
+@Injectable()
+export class UsersService {
+  constructor(@InjectModel(User.name) private userModule: Model<User>) {}
+
+  async create(email: string, password: string, name: string) {
+    let user = await this.userModule.create({ email, password, name });
+    return user;
+  }
+
+  findAll() {
+    return `This action returns all users`;
+  }
+
+  findOne(id: number) {
+    return `This action returns a #${id} user`;
+  }
+
+  update(id: number, updateUserDto: UpdateUserDto) {
+    return `This action updates a #${id} user`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} user`;
+  }
+}
+```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/479b81a1-9ac7-4e60-aea1-f0af41c020ce" width="300px" >
+
+### 7.3. Hash password
+[:arrow_up: Mục lục](#mục-lục)
+
+Cài đặt thư viện `bcryptjs` là một trong những thư viện giúp ta hash password. `@2.4.3` là phiên bản, nếu không khai báo phiên bản sẽ tự động cài phiên bản mới nhất
+
+```
+npm i --save-exact bcryptjs@2.4.3
+npm i --save-dev @types/bcryptjs@2.4.2
+```
+
+Xong đó chúng ta import vào
+
+```ts
+// user.service.ts
+import { genSaltSync, hashSync } from 'bcryptjs';
+```
+
+```ts
+// user.service.ts
+getHashPassword = (password: string) => {
+    const salt = genSaltSync(10);
+    const hash = hashSync(password, salt);
+    return hash;
+};
+```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/06d832f1-96a9-472c-8d9c-b17bd686c39c" width="300px" >
 
 
 
