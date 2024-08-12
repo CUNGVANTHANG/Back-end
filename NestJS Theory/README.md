@@ -15,6 +15,11 @@
 - [7. Restful API](#7-restful-api)
   - [7.1. Config](#71-config)
   - [7.2. Model](#72-model)
+  - [7.3. Hash password](#73-hash-password)
+  - [7.4. DTO - Data Transfer Object](#74-dto---data-transfer-object)
+  - [7.5. Pipe](#75-pipe)
+- [8. Stateful và Stateless](#8-stateful-và-stateless)
+- [9. JWT - JSON Web Token](#9-jwt---json-web-token)
 
 </details>
 
@@ -700,26 +705,6 @@ export class UsersController {
   ) {
     return this.usersService.create(email, password, name);
   }
-
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
-  }
 }
 ```
 
@@ -773,22 +758,6 @@ export class UsersService {
     let user = await this.userModule.create({ email, password, name });
     return user;
   }
-
-  findAll() {
-    return `This action returns all users`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
 }
 ```
 
@@ -826,6 +795,12 @@ _Kết quả:_
 
 <img src="https://github.com/user-attachments/assets/06d832f1-96a9-472c-8d9c-b17bd686c39c" width="300px" >
 
+### 7.4. DTO - Data Transfer Object
+[:arrow_up: Mục lục](#mục-lục)
+
+
+### 7.5. Pipe
+[:arrow_up: Mục lục](#mục-lục)
 
 
 
