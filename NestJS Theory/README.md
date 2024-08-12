@@ -13,6 +13,8 @@
   - [5.2. MySQL](#52-mysql)
 - [6. ENV Variables](#6-env-variables)
 - [7. Restful API](#7-restful-api)
+  - [7.1. Config](#71-config)
+  - [7.2. Model](#72-model)
 
 </details>
 
@@ -583,7 +585,24 @@ export class AppModule {}
 ### 7. Restful API
 [:arrow_up: Mục lục](#mục-lục)
 
+Cấu trúc thư mục:
 
+```
+src
+├── app.controller.ts
+├── app.module.ts
+├── app.service.ts
+├── main.ts
+└── users
+    ├── dto
+	├── create-user.dto.ts
+ 	└── update-user.dto.ts
+    ├── schemas
+ 	└── user.schema.ts
+    ├── user.controller.ts
+    ├── user.module.ts
+    └── user.service.ts
+```
 
 ### 7.1. Config
 [:arrow_up: Mục lục](#mục-lục)
@@ -606,15 +625,17 @@ Tiếp theo chúng ta cần chú ý cách đặt tên và thư mục dự án SQ
 
 | SQL | NoSQL |
 |:--: | :--: | 
-| ![image](https://github.com/user-attachments/assets/b27149fa-9824-4b3d-beac-126706d0b89b) | ![image](https://github.com/user-attachments/assets/c8ec26cd-e083-4259-ba15-ff53b821dad2)
- |
+| ![image](https://github.com/user-attachments/assets/b27149fa-9824-4b3d-beac-126706d0b89b) | ![image](https://github.com/user-attachments/assets/c8ec26cd-e083-4259-ba15-ff53b821dad2) |
 
 ### 7.2. Model
 [:arrow_up: Mục lục](#mục-lục)
 
 Ta làm như sau: `@Prop()` chỉ đây là thuộc tính, `required: true` nghĩa là trường này bắt buộc phải nhập
 
+[Cấu trúc thư mục](#7-restful-api)
+
 ```ts
+// user.schema.ts
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
@@ -650,6 +671,85 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 ```
 
+Tiếp theo ta có file `user.controller.ts`. Trong đó `@Body` được hiểu là `req.body` nghĩa là truyền body
+
+```ts
+// user.controller.ts
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { UsersService } from './users.service';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+
+@Controller('users')
+export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
+
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
+
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.usersService.findOne(+id);
+  }
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(+id, updateUserDto);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(+id);
+  }
+}
+```
+
+Để hiểu hơn về `@Body()`, ta có ví dụ sau:
+
+```ts
+@Post()
+  create(@Body("email") myEmail: string) {
+`   // const myEmail: string = req.body.email
+    return myEmail;
+  }
+```
+
+Ta hiểu là `const myEmail: string = req.body.email`
+
+Tiếp theo chúng ta cần hiểu được cách truy cập vào mongodb bằng cách `imports: [MongooseModule.forFeature([{ name: User.name, schema: UserSchema }])` vào module.
+
+```ts
+// user.module.ts
+import { Module } from '@nestjs/common';
+import { UsersService } from './users.service';
+import { UsersController } from './users.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from './schemas/user.schema';
+
+@Module({
+  imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+  ],
+  controllers: [UsersController],
+  providers: [UsersService],
+})
+export class UsersModule {}
+```
 
 
 
