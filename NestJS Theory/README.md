@@ -26,6 +26,7 @@
   - [9.1. JWT là gì](#91-jwt-là-gì)
   - [9.2. Phân loại token sử dụng](#92-phân-loại-token-sử-dụng)
   - [9.3. Thư viện Passport.js](#93-thư-viện-passportjs)
+  - [9.4. Guard](#94-guard)
 
 </details>
 
@@ -594,7 +595,7 @@ export class AppModule {}
 ### 7. Restful API - MongoDB
 [:arrow_up: Mục lục](#mục-lục)
 
-Cấu trúc thư mục:
+Cấu trúc thư mục dự án `restfulAPI`:
 
 ```
 src
@@ -1230,18 +1231,146 @@ Passport sinh ra để giải quyết vấn đề trên:
 
 Do passport hỗ trợ rất nhiều "kiểu login", nên có rất nhiều strategies được làm ra (phục vụ các mục đích khác nhau)
 
+### 9.4. Guard
+[:arrow_up: Mục lục](#mục-lục)
+
+#### Local Strategies với NestJS
+
+Yêu cầu đặt ra: (Mô hình stateless)
+
+- Client login với username/password
+- Nếu login thành công, server cần tạo ra access_token (dưới dạng jwt - json web token) gửi vể cho client
+- Kể từ lúc này, tất cả request gửi lên server, đều cần bearer token ở header (theo chuẩn oauth)
+- Nếu request gửi lên ko có token ➔ báo lỗi (protected routes)
+
+**1. Xác thực người dùng**
+
+Đây là quá trình client gửi lên server username/password. Nhiệm vụ của server là check xem thông tin đăng nhập có hợp lệ hay không?
+
+Cài đặt thư viện:
+
+```
+npm install --save-exact @nestjs/passport@9.0.3 passport@0.6.0 passport-local@1.0.0
+```
+
+cài đặt package check type khi code typescript:
+
+```
+npm install --save-dev @types/passport-local
+```
+
+**Cài 3 thư viện** (không phải là cài 1 thư viện duy nhất vì):
+
+- passport là thư viện gốc ➔ giúp ra tạo ra middleware (can thiệp và request và response), và lưu trữ thông tin người dùng đăng nhập (`req.user`)
+- `@nestjs/passport` là thư viện viết theo phong cách của nestjs, giúp việc can thiệp vào passport dễ dàng hơn
+- passport-local: đây là strategy hỗ trợ việc đăng nhập sử dụng username/password
+
+**Bắt đầu:**
+
+_Ví dụ:_ Dự án `jwt` có cấu trúc thư mục như sau:
+
+```
+src
+├── app.controller.ts
+├── app.module.ts
+├── app.service.ts
+├── main.ts
+└── users
+    ├── dto
+	├── create-user.dto.ts
+ 	└── update-user.dto.ts
+    ├── schemas
+ 	└── user.schema.ts
+    ├── user.controller.ts
+    ├── user.module.ts
+    └── user.service.ts
+```
+
+Ta sử dụng câu lệnh cli, tham khảo tại https://docs.nestjs.com/recipes/passport
+
+```
+nest g module auth
+nest g service auth
+```
+
+Cấu trúc thư mục trở thành như sau:
+
+```
+src
+├── app.controller.ts
+├── app.module.ts
+├── app.service.ts
+├── main.ts
+├── auth
+    ├── passport
+	└── local.strategy.ts
+    ├── auth.module.ts
+    └── auth.service.ts
+└── users
+    ├── dto
+	├── create-user.dto.ts
+ 	└── update-user.dto.ts
+    ├── schemas
+ 	└── user.schema.ts
+    ├── user.controller.ts
+    ├── user.module.ts
+    └── user.service.ts
+```
+
+#### Nestjs Guard
+
+**1. Middleware**
+
+Tài liệu: https://expressjs.com/en/guide/using-middleware.html
+
+Với Node.js, chúng ta có 1 khái niệm là middleware
+
+```ts
+myfunction (req, res, next){ ...}
+```
+
+Hoạt động như sau:
+
+```
+request ➔ middleware ➔ response
+```
+
+```
+request ➔ route ➔ middleware ➔ controller ➔ service ➔ response
+```
+
+Có 2 trường hợp xảy:
+
+- request ➔ route ➔ middleware. Dữ liệu không hợp lệ, không thực thi tiếp ➔ response (thông báo lỗi)
+- request ➔ route ➔ middleware. Dữ liệu hợp lệ ➔ next() ➔ controller ➔ service ➔ response
+
+Hiểu đơn giản, middleware, như tên gọi của nó giúp bạn can thiệp vào giữa request và response (request ➔ middleware ➔ response)
+
+**2. Guards**
+
+Tài liệu: https://docs.nestjs.com/guards
+
+Nó làm nhiệm vụ giống middleware, can thiệp vào request và response (request ➔ guards ➔ response)
+
+_But middleware, by its nature, is dumb._
+
+Nếu bạn dùng middleware, bạn chỉ có thể can thiệp vào request và response (request, response, next).
+
+_Ví dụ_: `router('/test', myMiddleware, myController)`.
 
 
+Với middleware, bạn không thể biết "handler" phía sau là gì, vì lúc nào, bạn cũng làm việc với request và response. Phần còn lại là hàm `next()` đã lo, đấy là lý do nó "dumb" 
 
+Guards thì hoàn toàn ngược lại, nó mạnh mẽ hơn nhờ middleware.
 
+Ngoài khả năng truy cập request, response, nó còn được sử dụng "ExecutionContext". Hiểu 1 cách đơn giản, là không gian thực thi code.
 
+Guard có nhiệm vụ check true/false:
 
+- Nếu true: cho đi tiếp
+- Nếu false: trả về phản hồi
 
-
-
-
-
-
+#### LocalGuard với Passport
 
 
 
