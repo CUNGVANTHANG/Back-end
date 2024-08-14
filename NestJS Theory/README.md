@@ -23,6 +23,9 @@
   - [8.1. Stateful](#81-stateful)
   - [8.2. Stateless](#82-stateless)
 - [9. JWT - JSON Web Token](#9-jwt---json-web-token)
+  - [9.1. JWT là gì](#91-jwt-là-gì)
+  - [9.2. Phân loại token sử dụng](#92-phân-loại-token-sử-dụng)
+  - [9.3. Thư viện Passport.js](#93-thư-viện-passportjs)
 
 </details>
 
@@ -1139,6 +1142,9 @@ Ví dụ: khi bạn thực hiện chuyển khoản liên ngân hàng từ VCB �
 ### 9. JWT - JSON Web Token
 [:arrow_up: Mục lục](#mục-lục)
 
+### 9.1. JWT là gì
+[:arrow_up: Mục lục](#mục-lục)
+
 #### What?
 
 JWT - Json Web Token là 1 chuỗi ký tự đã được mã hóa (tương tự như việc hash password). Mục đích mã hóa token là để trao đổi giữa các hệ thống với nhau và không làm lộ thông tin nhạy cảm (ví dụ frontend và backend)
@@ -1163,7 +1169,8 @@ JWT gồm 3 thành phần:
 #### When ?
 - Có các hệ thống khác nhau, cần có hình thức để xác thực user
 
-#### Phân loại token sử dụng
+### 9.2. Phân loại token sử dụng
+[:arrow_up: Mục lục](#mục-lục)
 
 **1. Access Token**
 
@@ -1188,10 +1195,40 @@ _Lưu ý:_ Không truyền thông tin nhạy cảm trong token (ví dụ như pa
 - sessionStorage: không dùng, vì khi close browser sẽ mất dữ liệu
 - cookies: refresh_token (Cookies có nhiều chế độ để đảm bảo độ an toàn khi truy cập)
 
-_Ví dụ_: Chỉ cho phép server sử dụng cookies, http = true (Kích hoạt chế độ HTTPOnly) thì client (javascript) không thể lấy cookies = hàm `document.cookie`
+_Ví dụ_: Chỉ cho phép server sử dụng cookies, http = true (Kích hoạt chế độ HTTPOnly) thì client (javascript) không thể lấy cookies = hàm `document.cookie`. Cookies sẽ tự hết hạn theo 1 thời gian nhất định (nếu set expired date) ➔ không dùng nó cũng tự mất
 
+**Backend:**
 
+Backend có thể lưu trữ token ở memory (RAM), disk (file), hoặc database (hay dùng nhất)
 
+### 9.3. Thư viện Passport.js
+[:arrow_up: Mục lục](#mục-lục)
+
+Tài liệu: https://www.passportjs.org/
+
+#### What?
+
+Passport (hay passport.js) là thư viện giúp việc authentication (xác thực/login) với Node.js trở nên dễ dàng hơn bao giờ hết. Đúng là như vậy nhưng dùng thư viện bao giờ không dễ. Vậy tại sao cần passport, trong khi chúng ta có thể "tự code" được.
+
+Thực chất passport là 1 middleware, can thiệp vào request và response. Như vậy sẽ xác nhận được (authenticated) là user đã đăng nhập hay chưa.
+
+_Lưu ý_: authentication vs authorization (passport là xác thực người dùng đã đăng nhập chưa, không liên quan gì tới phân quyền người dùng).
+
+#### Why?
+
+Với việc login local (bạn tự quản lý database cùng với username/password), ok thì tự code được.
+
+Vậy login với bên thứ 3 (third-party) thì sao, ví dụ như Facebook, Google, Apple, Amazon... chẳng lẽ lại đọc tài liệu, rồi đi ghép API?
+
+Passport sinh ra để giải quyết vấn đề trên:
+
+- Đơn giản hóa việc xác thực người dùng (authentication)
+- Support hơn 500+ strategies (các loại login khác nhau)
+- An toàn hơn so với việc bạn tự code, vì ít nhất thư viện đã được sử dụng rộng rãi và được testing về security
+
+#### Strategies
+
+Do passport hỗ trợ rất nhiều "kiểu login", nên có rất nhiều strategies được làm ra (phục vụ các mục đích khác nhau)
 
 
 
