@@ -118,22 +118,22 @@ export class UserController {
 }
 ```
 
-Khi khai báo `@Controller('user')` => Nest sẽ hiểu là `"/user"`
+Khi khai báo `@Controller('user')` ➔ Nest sẽ hiểu là `"/user"`
 
-`@Get()` => không có tham số đính kèm => ứng với route `"/"`
+`@Get()` ➔ không có tham số đính kèm ➔ ứng với route `"/"`
 
-=> cộng gộp sẽ ra `GET "/user"`
+➔ cộng gộp sẽ ra `GET "/user"`
 
 _Ví dụ 2:_
 
 ```ts
 @Controller()
-@Get('/user) // => sinh ra route "/user"
+@Get('/user) // ➔ sinh ra route "/user"
 ```
 
 ```ts
 @Controller("user1")
-@Get('/filter-by-name) // => sinh ra route "/user1/filter-by-name"
+@Get('/filter-by-name) // ➔ sinh ra route "/user1/filter-by-name"
 ```
 
 ### 3. Module
@@ -180,8 +180,8 @@ DI gồm 3 thành phần chính: consumer, provider và injector
 Sử dụng decorator: `@Injectable()`
 
 **Về scope:**
-- Nếu inject vào 1 modules cụ thể => chỉ có mình modules đấy sử dụng.
-- Nếu inject vào root modules => tất cả có thể dùng
+- Nếu inject vào 1 modules cụ thể ➔ chỉ có mình modules đấy sử dụng.
+- Nếu inject vào root modules ➔ tất cả có thể dùng
 
 Có **3 level** của DI:
 - Constructor Injection
@@ -547,7 +547,7 @@ Ta cần thêm đoạn code sau:
 ```ts
 MongooseModule.forRootAsync({
   imports: [ConfigModule],
-  useFactory: async (configService: ConfigService) => ({
+  useFactory: async (configService: ConfigService) ➔ ({
     uri: configService.get<string>('MONGODB_URI'),
   }),
   inject: [ConfigService],
@@ -573,7 +573,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   imports: [
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
+      useFactory: async (configService: ConfigService) ➔ ({
         uri: configService.get<string>('MONGODB_URI'),
       }),
       inject: [ConfigService],
@@ -791,7 +791,7 @@ import { genSaltSync, hashSync } from 'bcryptjs';
 
 ```ts
 // user.service.ts
-getHashPassword = (password: string) => {
+getHashPassword = (password: string) ➔ {
     const salt = genSaltSync(10);
     const hash = hashSync(password, salt);
     return hash;
@@ -949,7 +949,7 @@ export class CreateUserDto {
 
 ```ts
 // user.service.ts
-  getHashPassword = (password: string) => {
+  getHashPassword = (password: string) ➔ {
     const salt = genSaltSync(10);
     const hash = hashSync(password, salt);
     return hash;
@@ -1062,7 +1062,7 @@ remove(id: string) {
 
 **What can you do ? (view/create/update/delete)**
 
-Mỗi lời gọi request từ client => gửi lên server, cần biết, ai là người thực hiện hành động ấy, và người đấy được phép làm những gì?
+Mỗi lời gọi request từ client ➔ gửi lên server, cần biết, ai là người thực hiện hành động ấy, và người đấy được phép làm những gì?
 
 Giữa các lời gọi khác nhau, thông tin user không được lưu lại (http request). Tức là: `GET /user`, `GET /profile`
 
@@ -1074,9 +1074,9 @@ Vậy làm sao để server biết ai là người đang đăng nhập sử dụ
 
 Session là "bộ nhớ" của server, dùng để lưu trữ thông tin của người dùng (phiên đăng nhập)
 
-Do client không truyền lên dữ liệu user => client cần lưu giữ "id" của user, và gửi lên giữa các lời gọi request (để bảo mật, id thường lưu ở cookies)
+Do client không truyền lên dữ liệu user ➔ client cần lưu giữ "id" của user, và gửi lên giữa các lời gọi request (để bảo mật, id thường lưu ở cookies)
 
-Server dựa vào id này, truy vấn vào "session" để biết được người dùng đang đăng nhập là ai => quyết định xử lý request với thông tin đã có
+Server dựa vào id này, truy vấn vào "session" để biết được người dùng đang đăng nhập là ai ➔ quyết định xử lý request với thông tin đã có
 
 <img src="https://github.com/user-attachments/assets/d97348b5-2166-4cb3-b2fb-07b4627094dc" width="400px" >
 
@@ -1089,18 +1089,18 @@ Server dựa vào id này, truy vấn vào "session" để biết được ngư�
 
 Giải thích cơ chế hoạt động của stateful với session:
 
-1. Cần config session/cookies/passport cho express (file `main.ts`). Như vậy khi app khởi động lên, nó đã biết được sự tồn tại của session. Ở đây, làm product **không nên lưu session vào Memory**. Do dùng với Mongodb => lưu session vào Mongodb
-2. Tạo route login `POST /login` với route này, sử dụng 'guard' của nestJS (truyền vào local strategy của passport) => passport xử lý phần còn lại
+1. Cần config session/cookies/passport cho express (file `main.ts`). Như vậy khi app khởi động lên, nó đã biết được sự tồn tại của session. Ở đây, làm product **không nên lưu session vào Memory**. Do dùng với Mongodb ➔ lưu session vào Mongodb
+2. Tạo route login `POST /login` với route này, sử dụng 'guard' của nestJS (truyền vào local strategy của passport) ➔ passport xử lý phần còn lại
 3. Local Strategy được 'nhúng' khi module khởi động lên, input từ HTML (bao gồm `username`/`password`) sẽ tự động chạy vào hàm "validate"
-- Nếu username/password không hợp lệ => hiển thị thông báo lỗi
-- Nếu username/password hợp lệ => lưu thông tin vào session (request). Session này cũng được lưu "1 bản sao" vào database. Đồng thời, session cookies được lưu tại client (html)
-4. Mỗi lần F5 (load lại trang web), cookies sẽ được gửi lên server. Server dựa vào cookies (lấy ra sessionId) => kết hợp với passport (session serializer), query xuống database bảng session (setup tại bước 10). Lấy ra session tương ứng => như vậy sẽ maintain được "session của user" mỗi lần refresh page
+- Nếu username/password không hợp lệ ➔ hiển thị thông báo lỗi
+- Nếu username/password hợp lệ ➔ lưu thông tin vào session (request). Session này cũng được lưu "1 bản sao" vào database. Đồng thời, session cookies được lưu tại client (html)
+4. Mỗi lần F5 (load lại trang web), cookies sẽ được gửi lên server. Server dựa vào cookies (lấy ra sessionId) ➔ kết hợp với passport (session serializer), query xuống database bảng session (setup tại bước 10). Lấy ra session tương ứng ➔ như vậy sẽ maintain được "session của user" mỗi lần refresh page
 
 #### Ưu, nhược điểm của stateful
 
 **Ưu điểm**:
 
-1. Client không lưu giữ thông tin, ngoại trừ `session_id` => tính bảo mật cao, ít bị lộ thông tin người dùng
+1. Client không lưu giữ thông tin, ngoại trừ `session_id` ➔ tính bảo mật cao, ít bị lộ thông tin người dùng
 2. Server có thể "terminated"/chấm dứt/destroy/delete session của user bất cứ khi nào khi cần thiết. Khi session bị deleted, user sẽ bị logout
 
 **Nhược điểm**:
@@ -1108,7 +1108,7 @@ Giải thích cơ chế hoạt động của stateful với session:
 - Cần phải có cơ chế save/query session đủ nhanh (nếu số lượng người dùng truy cập lớn - nên lưu vào Redis).
 - Không thể share sessions giữa các hệ thống khác nhau.
 
-Ví dụ: khi bạn thực hiện chuyển khoản liên ngân hàng từ VCB => MB, sử dụng ứng dụng của VCB. Như vậy, khi bạn chuyển khoản tới MB, MB không biết bạn là ai, có hợp lệ hay không
+Ví dụ: khi bạn thực hiện chuyển khoản liên ngân hàng từ VCB ➔ MB, sử dụng ứng dụng của VCB. Như vậy, khi bạn chuyển khoản tới MB, MB không biết bạn là ai, có hợp lệ hay không
 
 ### 8.2. Stateless
 [:arrow_up: Mục lục](#mục-lục)
@@ -1118,8 +1118,8 @@ Ví dụ: khi bạn thực hiện chuyển khoản liên ngân hàng từ VCB =>
 - Với mỗi lời gọi request, client gửi kèm token ở header: access token
 (đã mã hóa/encoded). Token này chứa thông tin giúp định danh user là ai, và chỉ server mới có thể giải mã
 (decoded)
-- Server sẽ decoded token gửi lên để biết ai là người thực hiện request => xử lý request như bình thường
-- Để cho an toàn (trường hợp lộ access token, người khác có thể mạo danh bạn), access token thường có thời gian sử dụng ngắn (3 phút, 5 phút, 30 phút...). Khi request gửi lên server với access_token đã hết hạn => thông báo lỗi, và cần sử dụng refresh_token
+- Server sẽ decoded token gửi lên để biết ai là người thực hiện request ➔ xử lý request như bình thường
+- Để cho an toàn (trường hợp lộ access token, người khác có thể mạo danh bạn), access token thường có thời gian sử dụng ngắn (3 phút, 5 phút, 30 phút...). Khi request gửi lên server với access_token đã hết hạn ➔ thông báo lỗi, và cần sử dụng refresh_token
 - Sử dụng refresh token để đổi lấy access_token/refresh_token với thời hạn sử dụng mới.
 
 #### Ưu, nhược điểm của stateless
@@ -1136,10 +1136,59 @@ Ví dụ: khi bạn thực hiện chuyển khoản liên ngân hàng từ VCB =>
 - Tìm ẩn rủi ro nếu người dùng để lộ/bị hack token
 - 1 token khi đã issued (đã được cấp cho user), không có cách nào để có thể delete token đấy. Có nghĩa là, nếu token đang hợp lệ, bạn không thể delete token đấy
 
+### 9. JWT - JSON Web Token
+[:arrow_up: Mục lục](#mục-lục)
 
+#### What?
 
+JWT - Json Web Token là 1 chuỗi ký tự đã được mã hóa (tương tự như việc hash password). Mục đích mã hóa token là để trao đổi giữa các hệ thống với nhau và không làm lộ thông tin nhạy cảm (ví dụ frontend và backend)
 
+_Ví dụ về JWT_:
 
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+```
+
+JWT gồm 3 thành phần:
+
+- **Header** (algorithm & token type): chứa thuật toán mã hóa, và loại token
+- **Payload** (data): data được truyền đi giữa các bên sử dụng dưới dạng json (object)
+- **Verify signature** (chữ ký): client ký vào token (đánh dấu), chỉ có server (nắm giữ secret) là có thể giải mã token này.
+
+#### Why ?
+
+- Sử dụng JWT như là 1 cách an toàn để trao đổi thông tin giữa các bên liên quan (client/server)
+- Hỗ trợ thuật toán mạnh mẽ (encoded), và chỉ có secret của server mới có thể giải mã (decoded)
+
+#### When ?
+- Có các hệ thống khác nhau, cần có hình thức để xác thực user
+
+#### Phân loại token sử dụng
+
+**1. Access Token**
+
+- Được backend issued (backend là người tạo ra token này & lưu dữ secret để decoded token/giải mã token)
+- Thông thường được mã hóa dưới dạng JWT.
+- Trường hợp hay gặp nhất, là user login. Nếu login thành công ➔ server sẽ trả về choclient bộ access_token/refresh_token. Ứng với mỗi lời gọi request (API), client sẽ cần truyền thêm vào header access_token. Backend sẽ lấy thông tin của user trong token (ví dụ như username, email, id : những thông tin để định danh user là ai)
+
+_Lưu ý:_ Không truyền thông tin nhạy cảm trong token (ví dụ như password, otp...)
+
+**2. Refresh Token**
+
+Để đảm bảo an toàn, token thường có thời hạn sống (expired date). Vì nếu bị lộ token, người khác có thể mạo danh bạn.
+
+- access_token (chứa thông tin user ) ➔ có thời hạn sống ngắn
+- refresh_token (chứa thông tin để tạo ra bộ access_token/refresh_token mới), có thời hạn sống dài: 1 tháng, 3 tháng, 6 tháng, 1 năm...
+
+**3. Hình thức lưu trữ token**
+
+**Frontend:**
+
+- localStorage: access_token ➔ thuận tiện việc truy cập/lưu trữ token. Lấy data từ localStorage: `localStorage.get('item')`. Đồng thời, do access_token có thời hạn sống ngắn, nên khi bị lộ (hack localStorage), xác suất có rủi ro cũng giảm thiểu rất nhiều
+- sessionStorage: không dùng, vì khi close browser sẽ mất dữ liệu
+- cookies: refresh_token (Cookies có nhiều chế độ để đảm bảo độ an toàn khi truy cập)
+
+_Ví dụ_: Chỉ cho phép server sử dụng cookies, http = true (Kích hoạt chế độ HTTPOnly) thì client (javascript) không thể lấy cookies = hàm `document.cookie`
 
 
 
@@ -1221,7 +1270,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const PORT = 3333;
   // Lắng nghe port = 3333
-  await app.listen(PORT, () => {
+  await app.listen(PORT, () ➔ {
     console.log(`App start with port ${PORT}`);
   });
 }
@@ -1325,7 +1374,7 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const PORT = 3333;
-  await app.listen(PORT, () => {
+  await app.listen(PORT, () ➔ {
     console.log(`App start with port ${PORT}`);
   });
 }
@@ -1479,7 +1528,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const PORT = 3333;
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(PORT, () => {
+  await app.listen(PORT, () ➔ {
     console.log(`App start with port ${PORT}`);
   });
 }
@@ -1612,7 +1661,7 @@ export class UserDto extends BaseDto { // Kiểu dữ liệu người dùng gử
     @Expose()
     password: string;
     
-    static plainToInstance<T>(this: new (...args: any[]) => T, obj: T) : T {
+    static plainToInstance<T>(this: new (...args: any[]) ➔ T, obj: T) : T {
         return plainToClass(this, obj, { excludeExtraneousValues: true });
     }
 }
@@ -1659,7 +1708,7 @@ class Injector {
 	private _container = new Map();
 
 	constructor(private _providers: any[] = []) {
-		this._providers.forEach(service => this._container.set(service, new service()));
+		this._providers.forEach(service ➔ this._container.set(service, new service()));
 	}
 
 	get(serviceKey: any) {
