@@ -19,7 +19,9 @@
   - [7.4. DTO - Data Transfer Object](#74-dto---data-transfer-object)
   - [7.5. Pipe](#75-pipe)
   - [7.6. CRUD](#76-crud)
-- [8. Stateful và Stateless](#8-stateful-và-stateless)
+- [8. Mô hình Stateful và Stateless](#8-mô-hình-stateful-và-stateless)
+  - [8.1. Stateful](#81-stateful)
+  - [8.2. Stateless](#82-stateless)
 - [9. JWT - JSON Web Token](#9-jwt---json-web-token)
 
 </details>
@@ -1050,26 +1052,89 @@ remove(id: string) {
   }
 ```
 
+### 8. Mô hình Stateful và Stateless
+[:arrow_up: Mục lục](#mục-lục)
 
+### 8.1. Stateful
+[:arrow_up: Mục lục](#mục-lục)
 
+**Who you are ? user/guest**
 
+**What can you do ? (view/create/update/delete)**
 
+Mỗi lời gọi request từ client => gửi lên server, cần biết, ai là người thực hiện hành động ấy, và người đấy được phép làm những gì?
 
+Giữa các lời gọi khác nhau, thông tin user không được lưu lại (http request). Tức là: `GET /user`, `GET /profile`
 
+Với 2 lời gọi này, client không truyền lên dữ liệu user là ai ?
 
+Vậy làm sao để server biết ai là người đang đăng nhập sử dụng hệ thống ?
 
+#### Session
 
+Session là "bộ nhớ" của server, dùng để lưu trữ thông tin của người dùng (phiên đăng nhập)
 
+Do client không truyền lên dữ liệu user => client cần lưu giữ "id" của user, và gửi lên giữa các lời gọi request (để bảo mật, id thường lưu ở cookies)
 
+Server dựa vào id này, truy vấn vào "session" để biết được người dùng đang đăng nhập là ai => quyết định xử lý request với thông tin đã có
 
+<img src="https://github.com/user-attachments/assets/d97348b5-2166-4cb3-b2fb-07b4627094dc" width="400px" >
 
+#### Các phương pháp lưu trữ thông tin của client và server
 
+- Client (browser): local storage, session, cookies
+- Server: session (memory/RAM, disk storage/file, database)
 
+#### Cơ chế hoạt động của Stateful
 
-@Patch()
-  update(@Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(updateUserDto);
-  }
+Giải thích cơ chế hoạt động của stateful với session:
+
+1. Cần config session/cookies/passport cho express (file `main.ts`). Như vậy khi app khởi động lên, nó đã biết được sự tồn tại của session. Ở đây, làm product **không nên lưu session vào Memory**. Do dùng với Mongodb => lưu session vào Mongodb
+2. Tạo route login `POST /login` với route này, sử dụng 'guard' của nestJS (truyền vào local strategy của passport) => passport xử lý phần còn lại
+3. Local Strategy được 'nhúng' khi module khởi động lên, input từ HTML (bao gồm `username`/`password`) sẽ tự động chạy vào hàm "validate"
+- Nếu username/password không hợp lệ => hiển thị thông báo lỗi
+- Nếu username/password hợp lệ => lưu thông tin vào session (request). Session này cũng được lưu "1 bản sao" vào database. Đồng thời, session cookies được lưu tại client (html)
+4. Mỗi lần F5 (load lại trang web), cookies sẽ được gửi lên server. Server dựa vào cookies (lấy ra sessionId) => kết hợp với passport (session serializer), query xuống database bảng session (setup tại bước 10). Lấy ra session tương ứng => như vậy sẽ maintain được "session của user" mỗi lần refresh page
+
+#### Ưu, nhược điểm của stateful
+
+**Ưu điểm**:
+
+1. Client không lưu giữ thông tin, ngoại trừ `session_id` => tính bảo mật cao, ít bị lộ thông tin người dùng
+2. Server có thể "terminated"/chấm dứt/destroy/delete session của user bất cứ khi nào khi cần thiết. Khi session bị deleted, user sẽ bị logout
+
+**Nhược điểm**:
+
+- Cần phải có cơ chế save/query session đủ nhanh (nếu số lượng người dùng truy cập lớn - nên lưu vào Redis).
+- Không thể share sessions giữa các hệ thống khác nhau.
+
+Ví dụ: khi bạn thực hiện chuyển khoản liên ngân hàng từ VCB => MB, sử dụng ứng dụng của VCB. Như vậy, khi bạn chuyển khoản tới MB, MB không biết bạn là ai, có hợp lệ hay không
+
+### 8.2. Stateless
+[:arrow_up: Mục lục](#mục-lục)
+
+- Không dùng session
+- Client sử dụng: access token/refresh token để định danh thay cho session
+- Với mỗi lời gọi request, client gửi kèm token ở header: access token
+(đã mã hóa/encoded). Token này chứa thông tin giúp định danh user là ai, và chỉ server mới có thể giải mã
+(decoded)
+- Server sẽ decoded token gửi lên để biết ai là người thực hiện request => xử lý request như bình thường
+- Để cho an toàn (trường hợp lộ access token, người khác có thể mạo danh bạn), access token thường có thời gian sử dụng ngắn (3 phút, 5 phút, 30 phút...). Khi request gửi lên server với access_token đã hết hạn => thông báo lỗi, và cần sử dụng refresh_token
+- Sử dụng refresh token để đổi lấy access_token/refresh_token với thời hạn sử dụng mới.
+
+#### Ưu, nhược điểm của stateless
+
+**Ưu điểm**:
+
+- Không dùng session
+- Dựa hoàn toàn vào cơ chế tạo token (access_token, refresh_token)
+- Backend xử lý đơn giản hơn khi chỉ quan tâm encoded/decoded token
+- Có thể "xác thực" giữa các hệ thống khác nhau
+
+**Nhược điểm**:
+
+- Tìm ẩn rủi ro nếu người dùng để lộ/bị hack token
+- 1 token khi đã issued (đã được cấp cho user), không có cách nào để có thể delete token đấy. Có nghĩa là, nếu token đang hợp lệ, bạn không thể delete token đấy
 
 
 
