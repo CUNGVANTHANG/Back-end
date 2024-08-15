@@ -1303,8 +1303,10 @@ src
 ├── main.ts
 ├── auth
     ├── passport
-        ├── local-auth.strategy.ts
+        ├── jwt.strategy.ts
 	└── local.strategy.ts
+    ├── jwt-auth.guard.ts
+    ├── local-auth.guard.ts
     ├── auth.module.ts
     └── auth.service.ts
 └── users
@@ -1384,7 +1386,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 }
 ```
 
-Ta viết 2 phương thức hỗ trợ tìm user dựa vào email và kiểm tra password đã được mã hóa với password đầu vào người dùng nhập
+Ta viết 2 phương thức hỗ trợ tìm `user` dựa vào email và kiểm tra password đã được mã hóa với password đầu vào người dùng nhập
 
 ```ts
 // user.controller.ts
@@ -1442,7 +1444,6 @@ Nếu bạn dùng middleware, bạn chỉ có thể can thiệp vào request và
 
 _Ví dụ_: `router('/test', myMiddleware, myController)`.
 
-
 Với middleware, bạn không thể biết "handler" phía sau là gì, vì lúc nào, bạn cũng làm việc với request và response. Phần còn lại là hàm `next()` đã lo, đấy là lý do nó "dumb" 
 
 Guards thì hoàn toàn ngược lại, nó mạnh mẽ hơn nhờ middleware.
@@ -1480,7 +1481,7 @@ Trong đoạn code sau ta có `req.user` sẽ trả về toàn bộ thông tin U
 import { Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
-import { LocalAuthGuard } from './auth/passport/local-auth.strategy';
+import { LocalAuthGuard } from './auth/local-auth.guard';
 
 @Controller()
 export class AppController {
@@ -1591,7 +1592,7 @@ export class AuthModule {}
 import { Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ConfigService } from '@nestjs/config';
-import { LocalAuthGuard } from './auth/passport/local-auth.strategy';
+import { LocalAuthGuard } from './auth/local-auth.guard';
 import { AuthService } from './auth/auth.service';
 
 @Controller()
@@ -1616,6 +1617,8 @@ _Kết quả:_
 
 ### Implementing passport JWT
 
+Hiểu đơn giản `jwt.strategy.ts` là file giúp ta validate khi sử dụng thư viện passport
+
 ```ts
 // jwt.strategy.ts
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -1638,6 +1641,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 }
 ```
+
+Ta sử dụng `JwtAuthGuard` như 1 hằng số thay vì fix cứng là `AuthGuard('jwt')` ở `app.controller.ts`
 
 ```ts
 // jwt-auth.guard.ts
