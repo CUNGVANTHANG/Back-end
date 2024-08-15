@@ -1303,6 +1303,7 @@ src
 ├── main.ts
 ├── auth
     ├── passport
+        ├── local-auth.strategy.ts
 	└── local.strategy.ts
     ├── auth.module.ts
     └── auth.service.ts
@@ -1315,6 +1316,87 @@ src
     ├── user.controller.ts
     ├── user.module.ts
     └── user.service.ts
+```
+
+```ts
+// auth.service.ts
+import { Injectable } from '@nestjs/common';
+import { UsersService } from 'src/users/users.service';
+
+@Injectable()
+export class AuthService {
+  constructor(private usersService: UsersService) {}
+
+  // username và password là 2 tham số của thư viện passport nó sẽ trả về cho chúng ta
+  async validateUser(username: string, pass: string): Promise<any> {
+    const user = await this.usersService.findOneByUsername(username);
+
+    if (user) {
+      const isValid = this.usersService.isValidPassword(pass, user.password);
+      if (isValid) {
+        return user;
+      }
+    }
+    return null;
+  }
+}
+```
+
+```ts
+// auth.module.ts
+import { Module } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { UsersModule } from 'src/users/users.module';
+import { PassportModule } from '@nestjs/passport';
+import { LocalStrategy } from './passport/local.strategy';
+
+@Module({
+  imports: [UsersModule, PassportModule],
+  providers: [AuthService, LocalStrategy],
+})
+export class AuthModule {}
+```
+
+Nếu user tồn tại thì sẽ trả toàn bộ thông tin của user đó, còn nếu không tồn tại thì sẽ trả về unauthorized. 
+
+_Lưu ý:_ Không được đổi tên phương thức `validate`, tại vì `validate` là phương thức được kế thừa từ `PassportStrategy` là class của thư viện `@nestjs/passport` đã hỗ trợ ta xử lý logic. Việc ta cần làm là kế thừa lại và sử dụng nó
+
+```ts
+// local.strategy.ts
+import { Strategy } from 'passport-local';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { AuthService } from '../auth.service';
+
+@Injectable()
+export class LocalStrategy extends PassportStrategy(Strategy) {
+  constructor(private authService: AuthService) {
+    super();
+  }
+
+  async validate(username: string, password: string): Promise<any> {
+    const user = await this.authService.validateUser(username, password);
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+    return user;
+  }
+}
+```
+
+Ta viết 2 phương thức hỗ trợ tìm user dựa vào email và kiểm tra password đã được mã hóa với password đầu vào người dùng nhập
+
+```ts
+// user.controller.ts
+  findOneByUsername(username: string) {
+    return this.userModule.findOne({
+      email: username,
+    });
+  }
+
+  isValidPassword(password: string, hash: string) {
+    return compareSync(password, hash);
+  }
 ```
 
 #### Nestjs Guard
@@ -1371,6 +1453,54 @@ Guard có nhiệm vụ check true/false:
 - Nếu false: trả về phản hồi
 
 #### LocalGuard với Passport
+
+Mục đích của dùng Guard để biết người dùng đã đăng nhập hay chưa
+
+_Ví dụ:_
+
+Ta sử dụng `LocalAuthGuard` như 1 hằng số thay vì fix cứng là `AuthGuard('local')` ở `app.controller.ts`
+
+```ts
+// local-auth.strategy.ts
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Injectable()
+export class LocalAuthGuard extends AuthGuard('local') {}
+```
+
+Trong đoạn code sau ta có `req.user` sẽ trả về toàn bộ thông tin User
+
+```ts
+// app.controller.ts
+import { Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
+import { LocalAuthGuard } from './auth/passport/local-auth.strategy';
+
+@Controller()
+export class AppController {
+  constructor(
+    private readonly appService: AppService,
+    private configService: ConfigService,
+  ) {}
+
+  @UseGuards(LocalAuthGuard)
+  @Post('/login')
+  async login(@Request() req) {
+    return req.user;
+  }
+}
+```
+
+Ta thử test Postman tạo tài khoản
+
+<img src="https://github.com/user-attachments/assets/c8080593-9b80-4172-a8be-31843002908f" width="400px" >
+
+<img src="https://github.com/user-attachments/assets/7eb99068-731a-499a-8dda-93da1cb2e2d9" width="400px" >
+
+Ta có thể thấy `req.user` đã trả về toàn bộ thông tin User
+
 
 
 
