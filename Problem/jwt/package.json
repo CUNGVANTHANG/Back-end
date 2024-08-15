@@ -1,0 +1,14 @@
+{
+  "name": "jwt",
+  "version": "1.0.0",
+  "main": "steal_keysecret.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2"
+  }
+}
