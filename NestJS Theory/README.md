@@ -1234,6 +1234,12 @@ Do passport hỗ trợ rất nhiều "kiểu login", nên có rất nhiều stra
 ### 9.4. Guard
 [:arrow_up: Mục lục](#mục-lục)
 
+**Mô hình hoạt động**:
+
+<img src="https://github.com/user-attachments/assets/2b7abe08-2a2e-47cf-84fe-a3736a2d7cc0" width="800px" >
+
+<img src="https://github.com/user-attachments/assets/ec9850a9-d4bd-4a7e-9289-a30ce0b5c1e9" width="800px" >
+
 #### Local Strategies với NestJS
 
 Yêu cầu đặt ra: (Mô hình stateless)
@@ -1309,6 +1315,8 @@ src
     ├── local-auth.guard.ts
     ├── auth.module.ts
     └── auth.service.ts
+├── decorator
+    └── customize.ts
 └── users
     ├── dto
 	├── create-user.dto.ts
@@ -1688,13 +1696,170 @@ _Kết quả:_
 
 <img src="https://github.com/user-attachments/assets/545355fb-c380-4a92-8a81-120a88c007ef" width="400px" >
 
+### Enable authentication globally
 
+Tài liệu tham khảo: https://docs.nestjs.com/recipes/passport#enable-authentication-globally
 
+Dùng để check jwt cho tất cả API. Mục đích là dùng để bảo vệ một số API mà ta muốn.
 
+```ts
+// jwt-auth.guard.ts
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  canActivate(context: ExecutionContext) {
+    // Add your custom authentication logic here
+    // for example, call super.logIn(request) to establish a session.
+    return super.canActivate(context);
+  }
 
+  handleRequest(err, user, info) {
+    // You can throw an exception based on either "info" or "err" arguments
+    if (err || !user) {
+      throw err || new UnauthorizedException("Token không hợp lệ");
+    }
+    return user;
+  }
+}
+```
 
+Thêm đoạn code sau vào `providers` của `app.module.ts` để sử dụng phạm vi global
 
+```ts
+providers: [
+  {
+    provide: APP_GUARD,
+    useClass: JwtAuthGuard,
+  },
+],
+```
+
+hoặc ta có thể khai báo trong `main.ts`
+
+```ts
+// main.ts
+import { NestFactory, Reflector } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
+import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const configService = app.get(ConfigService);
+  const reflector = app.get(Reflector);
+
+  app.useGlobalGuards(new JwtAuthGuard(reflector));
+  app.useStaticAssets(join(__dirname, '..', 'public')); // js, css, images
+  app.setBaseViewsDir(join(__dirname, '..', 'views')); // view
+  app.setViewEngine('ejs');
+
+  app.useGlobalPipes(new ValidationPipe());
+
+  await app.listen(configService.get<string>('PORT'));
+}
+bootstrap();
+```
+
+### Disable Guard
+
+Tài liệu tham khảo: https://stackoverflow.com/a/73171823, https://stackoverflow.com/questions/49429241/nest-js-global-authguard-but-with-exce
+ptions, https://github.com/nestjs/nest/issues/964#issuecomment-480834786
+
+```ts
+// customize.ts
+import { SetMetadata } from '@nestjs/common';
+
+export const IS_PUBLIC_KEY = 'isPublic';
+export const Public = () => SetMetadata(IS_PUBLIC_KEY, true); // key: value
+```
+
+```ts
+// jwt-auth.guard.ts
+import {
+  ExecutionContext,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { AuthGuard } from '@nestjs/passport';
+import { IS_PUBLIC_KEY } from 'src/decorator/customize';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private reflector: Reflector) {
+    super();
+  }
+
+  canActivate(context: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+    if (isPublic) {
+      return true;
+    }
+    return super.canActivate(context);
+  }
+
+  handleRequest(err, user, info) {
+    // You can throw an exception based on either "info" or "err" arguments
+    if (err || !user) {
+      throw err || new UnauthorizedException('Token không hợp lệ');
+    }
+    return user;
+  }
+}
+```
+
+Từ đó ta chỉ việc sử dụng `@Public` để bỏ qua việc kiểm tra jwt ở API
+
+```ts
+// app.controller.ts
+import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
+import { LocalAuthGuard } from './auth/local-auth.guard';
+import { AuthService } from './auth/auth.service';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { Public } from './decorator/customize';
+
+@Controller()
+export class AppController {
+  constructor(
+    private readonly appService: AppService,
+    private configService: ConfigService,
+    private authService: AuthService,
+  ) {}
+
+  @Public()
+  @UseGuards(LocalAuthGuard)
+  @Post('/login')
+  async login(@Request() req) {
+    return this.authService.login(req.user);
+  }
+
+  @Public()
+  // @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req) {
+    return req.user;
+  }
+
+  @Get('profile1')
+  getProfile1(@Request() req) {
+    return req.user;
+  }
+}
+```
 
 
 
