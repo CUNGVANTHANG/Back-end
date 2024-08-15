@@ -1243,7 +1243,7 @@ Yêu cầu đặt ra: (Mô hình stateless)
 - Kể từ lúc này, tất cả request gửi lên server, đều cần bearer token ở header (theo chuẩn oauth)
 - Nếu request gửi lên ko có token ➔ báo lỗi (protected routes)
 
-**1. Xác thực người dùng**
+**Xác thực người dùng**
 
 Đây là quá trình client gửi lên server username/password. Nhiệm vụ của server là check xem thông tin đăng nhập có hợp lệ hay không?
 
@@ -1401,6 +1401,8 @@ Ta viết 2 phương thức hỗ trợ tìm user dựa vào email và kiểm tra
 
 #### Nestjs Guard
 
+Tham khảo tại: https://docs.nestjs.com/recipes/passport
+
 **1. Middleware**
 
 Tài liệu: https://expressjs.com/en/guide/using-middleware.html
@@ -1454,6 +1456,8 @@ Guard có nhiệm vụ check true/false:
 
 #### LocalGuard với Passport
 
+Tham khảo tại: https://docs.nestjs.com/recipes/passport
+
 Mục đích của dùng Guard để biết người dùng đã đăng nhập hay chưa
 
 _Ví dụ:_
@@ -1501,9 +1505,183 @@ Ta thử test Postman tạo tài khoản
 
 Ta có thể thấy `req.user` đã trả về toàn bộ thông tin User
 
+### Sử dụng JWT
 
+Tham khảo tại: https://docs.nestjs.com/recipes/passport
 
+Đầu tiên chúng ta cần cài đặt thư viện hỗ trợ sau:
 
+```
+npm install --save-exact @nestjs/jwt@10.0.3 passport-jwt@4.0.1
+npm install --save-dev @types/passport-jwt
+```
+
+Tiếp theo chúng ta sẽ import `JwtService` vào `auth.service.ts` để sử dụng
+
+```ts
+// auth.service.ts
+import { Injectable } from '@nestjs/common';
+import { UsersService } from 'src/users/users.service';
+import { JwtService } from '@nestjs/jwt';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
+
+  // username và password là 2 tham số của thư viện passport nó sẽ trả về cho chúng ta
+  async validateUser(username: string, pass: string): Promise<any> {
+    const user = await this.usersService.findOneByUsername(username);
+
+    if (user) {
+      const isValid = this.usersService.isValidPassword(pass, user.password);
+      if (isValid) {
+        return user;
+      }
+    }
+    return null;
+  }
+
+  async login(user: any) {
+    const payload = { username: user.email, sub: user._id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
+}
+```
+
+Chúng ta cũng cần khai báo ở module để thông báo đang được sử dụng. Cách để sử dụng `.env` trong `.module.ts` ta sẽ lại xem lại [6. ENV Variables](#6-env-variables)
+
+```ts
+// auth.module.ts
+import { Module } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { UsersModule } from 'src/users/users.module';
+import { PassportModule } from '@nestjs/passport';
+import { LocalStrategy } from './passport/local.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+
+@Module({
+  imports: [
+    UsersModule,
+    PassportModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: configService.get<string>('JWT_EXPIRE'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  providers: [AuthService, LocalStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}
+```
+
+```ts
+// app.controller.ts
+import { Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
+import { LocalAuthGuard } from './auth/passport/local-auth.strategy';
+import { AuthService } from './auth/auth.service';
+
+@Controller()
+export class AppController {
+  constructor(
+    private readonly appService: AppService,
+    private configService: ConfigService,
+    private authService: AuthService,
+  ) {}
+
+  @UseGuards(LocalAuthGuard)
+  @Post('/login')
+  async login(@Request() req) {
+    return this.authService.login(req.user);
+  }
+}
+```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/34581f59-3456-4870-a613-1791b8d2a1e4" width="400px" >
+
+### Implementing passport JWT
+
+```ts
+// jwt.strategy.ts
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import { PassportStrategy } from '@nestjs/passport';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(private configService: ConfigService) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get<string>('JWT_SECRET'),
+    });
+  }
+
+  async validate(payload: any) {
+    return { userId: payload.sub, username: payload.username };
+  }
+}
+```
+
+```ts
+// jwt-auth.guard.ts
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {}
+```
+
+```ts
+// app.controller.ts
+import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
+import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
+import { LocalAuthGuard } from './auth/local-auth.guard';
+import { AuthService } from './auth/auth.service';
+import { JwtAuthGuard } from './auth/jwt-auth.guard';
+
+@Controller()
+export class AppController {
+  constructor(
+    private readonly appService: AppService,
+    private configService: ConfigService,
+    private authService: AuthService,
+  ) {}
+
+  @UseGuards(LocalAuthGuard)
+  @Post('/login')
+  async login(@Request() req) {
+    return this.authService.login(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req) {
+    return req.user;
+  }
+}
+```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/545355fb-c380-4a92-8a81-120a88c007ef" width="400px" >
 
 
 
