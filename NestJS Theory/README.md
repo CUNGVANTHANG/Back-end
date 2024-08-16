@@ -1234,6 +1234,15 @@ Do passport hỗ trợ rất nhiều "kiểu login", nên có rất nhiều stra
 ### 9.4. Guard
 [:arrow_up: Mục lục](#mục-lục)
 
+- [1. Local Strategies với NestJS](#-local-strategies-với-nestjs)
+- [2. Nestjs Guard](#-nestjs-guard)
+- [3. LocalGuard với Passport](#-localguard-với-passport)
+- [4. Sử dụng JWT](#4-sử-dụng-jwt)
+- [5. Implementing Passport JWT](#-implementing-passport-jwt)
+- [6. Enable authentication globally](#-enable-authentication-globally)
+- [7. Disable Guard](#7-disable-guard)
+- [8. Thư viện ms](#8-thư-viện-ms)
+
 **Mô hình hoạt động**:
 
 <img src="https://github.com/user-attachments/assets/2b7abe08-2a2e-47cf-84fe-a3736a2d7cc0" width="800px" >
@@ -1241,6 +1250,7 @@ Do passport hỗ trợ rất nhiều "kiểu login", nên có rất nhiều stra
 <img src="https://github.com/user-attachments/assets/ec9850a9-d4bd-4a7e-9289-a30ce0b5c1e9" width="800px" >
 
 #### Local Strategies với NestJS
+[:arrow_up: Guard](#94-guard)
 
 Yêu cầu đặt ra: (Mô hình stateless)
 
@@ -1410,6 +1420,7 @@ Ta viết 2 phương thức hỗ trợ tìm `user` dựa vào email và kiểm t
 ```
 
 #### Nestjs Guard
+[:arrow_up: Guard](#94-guard)
 
 Tham khảo tại: https://docs.nestjs.com/recipes/passport
 
@@ -1464,6 +1475,7 @@ Guard có nhiệm vụ check true/false:
 - Nếu false: trả về phản hồi
 
 #### LocalGuard với Passport
+[:arrow_up: Guard](#94-guard)
 
 Tham khảo tại: https://docs.nestjs.com/recipes/passport
 
@@ -1515,6 +1527,7 @@ Ta thử test Postman tạo tài khoản
 Ta có thể thấy `req.user` đã trả về toàn bộ thông tin User
 
 ### Sử dụng JWT
+[:arrow_up: Guard](#94-guard)
 
 Tham khảo tại: https://docs.nestjs.com/recipes/passport
 
@@ -1621,9 +1634,10 @@ export class AppController {
 
 _Kết quả:_
 
-<img src="https://github.com/user-attachments/assets/34581f59-3456-4870-a613-1791b8d2a1e4" width="400px" >
+<img src="https://github.com/user-attachments/assets/34581f59-3456-4870-a613-1791b8d2a1e4" width="500px" >
 
 ### Implementing passport JWT
+[:arrow_up: Guard](#94-guard)
 
 Hiểu đơn giản `jwt.strategy.ts` là file giúp ta validate khi sử dụng thư viện passport
 
@@ -1697,6 +1711,7 @@ _Kết quả:_
 <img src="https://github.com/user-attachments/assets/545355fb-c380-4a92-8a81-120a88c007ef" width="400px" >
 
 ### Enable authentication globally
+[:arrow_up: Guard](#94-guard)
 
 Tài liệu tham khảo: https://docs.nestjs.com/recipes/passport#enable-authentication-globally
 
@@ -1770,6 +1785,7 @@ bootstrap();
 ```
 
 ### Disable Guard
+[:arrow_up: Guard](#94-guard)
 
 Tài liệu tham khảo: https://stackoverflow.com/a/73171823, https://stackoverflow.com/questions/49429241/nest-js-global-authguard-but-with-exce
 ptions, https://github.com/nestjs/nest/issues/964#issuecomment-480834786
@@ -1820,7 +1836,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 }
 ```
 
-Từ đó ta chỉ việc sử dụng `@Public` để bỏ qua việc kiểm tra jwt ở API
+Từ đó ta chỉ việc sử dụng `@Public` để bỏ qua việc kiểm tra jwt ở API. Như ví dụ dưới đây route "/login", "/profile" sẽ không cần phải kiểm tra jwt, còn "/profile1" sẽ phải kiểm tra jwt (chú ý đây chỉ là ví dụ minh họa)
 
 ```ts
 // app.controller.ts
@@ -1860,6 +1876,73 @@ export class AppController {
   }
 }
 ```
+
+_Kết quả:_
+
+<img src="https://github.com/user-attachments/assets/7660d4f4-269f-494c-8c92-faf69133e628" width="500px" >
+
+<img src="https://github.com/user-attachments/assets/90e8fc71-37cf-4907-a326-6b78da7c4e3e" width="500px" >
+
+<img src="https://github.com/user-attachments/assets/ce7ebc3c-8537-4263-9873-fff156a0699b" width="500px" >
+
+### Thư viện ms
+[:arrow_up: Guard](#94-guard)
+
+Thư viện này dùng để Convert String to milliseconds. Tại sao phải sử dụng, hiểu đơn giản thì thời gian hết hạn (`expiresIn`) của JWT chưa chắc đã chính xác với thời gian thực. Vì vậy để nó hết hạn đúng với thời gian thực do ta đặt, ta cần sử dụng tới thư viện này.
+
+Tài liệu tham khảo: https://www.npmjs.com/package/ms
+
+_Cài đặt_:
+
+```
+npm i --save-exact ms@2.1.3
+npm i --save-dev @types/ms
+```
+
+Ta cần sửa lại một số đoạn code như sau (Thêm thư viện `ms` vào)
+
+```ts
+// auth.module.ts
+import { Module } from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { UsersModule } from 'src/users/users.module';
+import { PassportModule } from '@nestjs/passport';
+import { LocalStrategy } from './passport/local.strategy';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtStrategy } from './passport/jwt.strategy';
+import ms from 'ms';
+
+@Module({
+  imports: [
+    UsersModule,
+    PassportModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: {
+          expiresIn: ms(configService.get<string>('JWT_EXPIRE')),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+  ],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
+  exports: [AuthService],
+})
+export class AuthModule {}
+```
+
+Nó xuất hiện 1 lỗi như sau và ta sẽ đi fix nó:
+
+<img src="https://github.com/user-attachments/assets/24699528-c777-40d7-ba57-2a5878c6fe69" width="500px" >
+
+Thêm tham số `"esModuleInterop": true` vào trong file `tsconfig.json` sẽ fix được lỗi này
+
+<img src="https://github.com/user-attachments/assets/fd6b6e68-0e5f-4177-86f6-038f891b5636" width="300px" >
+
+
 
 
 
