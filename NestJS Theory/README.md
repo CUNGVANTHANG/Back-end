@@ -27,6 +27,7 @@
   - [9.2. Phân loại token sử dụng](#92-phân-loại-token-sử-dụng)
   - [9.3. Thư viện Passport.js](#93-thư-viện-passportjs)
   - [9.4. Guard](#94-guard)
+- [10. Mongoose plugins](#10-mongoose-plugins)
 
 </details>
 
@@ -1249,7 +1250,7 @@ Do passport hỗ trợ rất nhiều "kiểu login", nên có rất nhiều stra
 
 <img src="https://github.com/user-attachments/assets/ec9850a9-d4bd-4a7e-9289-a30ce0b5c1e9" width="800px" >
 
-#### Local Strategies với NestJS
+### Local Strategies với NestJS
 [:arrow_up: Guard](#94-guard)
 
 Yêu cầu đặt ra: (Mô hình stateless)
@@ -1419,7 +1420,7 @@ Ta viết 2 phương thức hỗ trợ tìm `user` dựa vào email và kiểm t
   }
 ```
 
-#### Nestjs Guard
+### Nestjs Guard
 [:arrow_up: Guard](#94-guard)
 
 Tham khảo tại: https://docs.nestjs.com/recipes/passport
@@ -1474,7 +1475,7 @@ Guard có nhiệm vụ check true/false:
 - Nếu true: cho đi tiếp
 - Nếu false: trả về phản hồi
 
-#### LocalGuard với Passport
+### LocalGuard với Passport
 [:arrow_up: Guard](#94-guard)
 
 Tham khảo tại: https://docs.nestjs.com/recipes/passport
@@ -1942,7 +1943,60 @@ Thêm tham số `"esModuleInterop": true` vào trong file `tsconfig.json` sẽ f
 
 <img src="https://github.com/user-attachments/assets/fd6b6e68-0e5f-4177-86f6-038f891b5636" width="300px" >
 
+### 10. Mongoose plugins
+[:arrow_up: Mục lục](#mục-lục)
 
+- [1. Timestamps plugin](#1-timestamps-plugin)
+
+### Timestamps plugin
+[:arrow_up: Mongoose plugins](#10-mongoose-plugins)
+
+Plugin này giúp ta tự động cập nhật `createAt` và `updateAt` mà không cần phải nhập thủ công
+
+Cách thêm Plugin vào NestJS. Ta thêm cập nhật đoạn code sau trong `.schema.ts`
+
+```ts
+@Schema({timestamps: true })
+```
+
+và khai báo 
+
+```ts
+@Prop()
+createdAt: Date;
+
+@Prop()
+updatedAt: Date;
+```
+
+_Ví dụ:_
+
+```ts
+// user.schema.ts
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type UserDocument = HydratedDocument<User>;
+
+@Schema({ timestamps: true })
+export class User {
+  @Prop({ required: true })
+  email: string;
+
+  @Prop({ required: true })
+  password: string;
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
+}
+
+export const UserSchema = SchemaFactory.createForClass(User);
+```
+
+<img src="https://github.com/user-attachments/assets/ecb67037-f0ea-4e51-a1a6-e1813a5f5623" width="400px" >
 
 
 
