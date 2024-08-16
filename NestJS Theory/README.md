@@ -1234,14 +1234,14 @@ Do passport hỗ trợ rất nhiều "kiểu login", nên có rất nhiều stra
 ### 9.4. Guard
 [:arrow_up: Mục lục](#mục-lục)
 
-- [1. Local Strategies với NestJS](#-local-strategies-với-nestjs)
-- [2. Nestjs Guard](#-nestjs-guard)
-- [3. LocalGuard với Passport](#-localguard-với-passport)
-- [4. Sử dụng JWT](#4-sử-dụng-jwt)
-- [5. Implementing Passport JWT](#-implementing-passport-jwt)
-- [6. Enable authentication globally](#-enable-authentication-globally)
-- [7. Disable Guard](#7-disable-guard)
-- [8. Thư viện ms](#8-thư-viện-ms)
+- [1. Local Strategies với NestJS](#local-strategies-với-nestjs)
+- [2. Nestjs Guard](#nestjs-guard)
+- [3. LocalGuard với Passport](#localguard-với-passport)
+- [4. Sử dụng JWT](#sử-dụng-jwt)
+- [5. Implementing Passport JWT](#implementing-passport-jwt)
+- [6. Enable authentication globally](#enable-authentication-globally)
+- [7. Disable Guard](#disable-guard)
+- [8. Thư viện ms](#thư-viện-ms)
 
 **Mô hình hoạt động**:
 
