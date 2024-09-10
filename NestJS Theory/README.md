@@ -1946,7 +1946,8 @@ Thêm tham số `"esModuleInterop": true` vào trong file `tsconfig.json` sẽ f
 ### 10. Mongoose plugins
 [:arrow_up: Mục lục](#mục-lục)
 
-- [1. Timestamps plugin](#1-timestamps-plugin)
+- [1. Timestamps plugin](#timestamps-plugin)
+- [2. Soft-delete plugin](#soft-delete-plugin)
 
 ### Timestamps plugin
 [:arrow_up: Mongoose plugins](#10-mongoose-plugins)
@@ -1998,9 +1999,107 @@ export const UserSchema = SchemaFactory.createForClass(User);
 
 <img src="https://github.com/user-attachments/assets/ecb67037-f0ea-4e51-a1a6-e1813a5f5623" width="400px" >
 
+### Soft-delete plugin
+[:arrow_up: Mongoose plugins](#10-mongoose-plugins)
 
+**Cài đặt:**
 
+```ts
+npm i soft-delete-plugin-mongoose
+```
 
+**Config:**
+
+Thêm `connectionFactory` vào `useFactory`
+
+```ts
+// app.module.ts
+MongooseModule.forRootAsync({
+   imports: [ConfigModule],
+   useFactory: async (config: ConfigService) => ({
+      uri: config.get<string>('MONGO_DB_URL'),
+      connectionFactory: (connection) => {
+         connection.plugin(softDeletePlugin);
+         return connection;
+      }
+   }),
+   inject: [ConfigService],
+}),
+```
+
+_Ví dụ:_
+
+```ts
+// users.service.ts
+@Injectable()
+export class UsersService {
+  constructor(@InjectModel(User.name) private userModule: Model<User>) {}
+}
+```
+
+Thay vì trong `.service` sử dụng `Model<User>` thì ta sẽ sử dụng 
+
+```ts
+// users.service.ts
+@Injectable()
+export class UsersService {
+  constructor(@InjectModel(User.name) private userModule: SoftDeleteModel<UserDocument>) {}
+}}
+```
+
+_Lưu ý_: Khi update model sẽ thêm 2 fields sau:
+
+```
+deletedAt: null,
+isDeleted: false
+```
+
+Sau khi set up xong, trong hàm `remove` của chúng ta thay vì sử dụng `deleteOne` ta có thể dùng `softDelete` để thực hiện xóa mềm
+
+```ts
+// users.service.ts
+ remove(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return 'Not found user';
+    }
+    return this.userModule.deleteOne({
+      _id: id,
+    });
+  }
+```
+
+```ts
+// users.service.ts
+ remove(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return 'Not found user';
+    }
+    return this.userModule.softDelete({
+      _id: id,
+    });
+  }
+```
+
+đồng thời không được quên thêm các trường 
+
+```ts
+// user.schema.ts
+  @Prop()
+  isDeleted: boolean;
+
+  @Prop()
+  deletedAt: Date;
+```
+
+Sử dụng postman:
+
+<img src="https://github.com/user-attachments/assets/09f9f9d8-134a-4b9c-aa3b-481c56572728" width="400px" >
+
+<img src="https://github.com/user-attachments/assets/315fa8e5-bb27-4385-9cbd-9774a6fd8044" width="400px" >
+
+Kết quả:
+
+<img src="https://github.com/user-attachments/assets/cbccd95f-c462-4879-a451-5bca71bdca28" width="400px" >
 
 
 
