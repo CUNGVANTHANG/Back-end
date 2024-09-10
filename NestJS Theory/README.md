@@ -28,6 +28,7 @@
   - [9.3. Thư viện Passport.js](#93-thư-viện-passportjs)
   - [9.4. Guard](#94-guard)
 - [10. Mongoose plugins](#10-mongoose-plugins)
+- [11. CORS Policy](#11-cors-policy)
 
 </details>
 
@@ -2101,18 +2102,47 @@ Kết quả:
 
 <img src="https://github.com/user-attachments/assets/cbccd95f-c462-4879-a451-5bca71bdca28" width="400px" >
 
+### 11. CORS Policy
+[:arrow_up: Mục lục](#mục-lục)
 
+> **Cross-Origin Resource Sharing (CORS): là cơ chế "server" cho phép "origin (domain/port) từ phía "browser" được truy cập nguồn tài nguyên (APIs)**
 
+CORS sẽ xảy ra, khi browser gửi request lên server, và server "chưa cấu hình CORS)
 
+Tại sao lại cần?
 
+_Ví dụ:_ Trang web facebook.com
 
+Nếu không có CORS:
 
+**POST facebook.com/change-password**
 
+Bạn dùng máy tính (browser), nhận được tin nhắn từ người là, là đường link hacker.com. Vì tò mò, bạn click vào link trên, và 5 phút sau account Facebook bị đổi mật khẩu, Why ?
 
+Chúng ta cần hiểu cơ chế của browser?
 
+**Cơ chế của browser:**
 
+Khi bạn login thành công, sẽ lưu "cookies". Cookies này sẽ lưu tại máy tính bạn gồm 2 thành phần:
 
+- domain: tên website sử dụng cookies này
+- value: giá trị của cookies
 
+Nếu bạn login facebook thành công, máy tính bạn sẽ có cookies:
+
+- domain: https://www.facebook.com/
+- value: ...
+
+Như vậy, việc gửi kèm cookies này là do browser tự làm và cookies "đại diện/tượng trưng" cho user (mà không cần password)
+
+Khi không có CORS:
+
+- Máy tính bạn "đã lưu" cookies của facebook
+- Bạn vào hacker.com, và trang này gọi request tới facebook.com ➔ browser sẽ tự động gửi kèm cookies của bạn tới facebook.com
+
+Nếu hacker.com thực hiện **POST facebook.com/change-password** ➔ change password dựa vào cookies, mà không cần người dùng nhập mật khẩu
+
+Thực tế: do facebook.com và hacker.com là 2 domain khác nhau, nên sẽ bị chặn CORS default
 
 
 
