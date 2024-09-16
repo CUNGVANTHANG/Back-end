@@ -2144,6 +2144,84 @@ Nếu hacker.com thực hiện **POST facebook.com/change-password** ➔ change 
 
 Thực tế: do facebook.com và hacker.com là 2 domain khác nhau, nên sẽ bị chặn CORS default
 
+**Cách để bypass CORS**
+
+Đơn giản thì chúng ta chỉ cần thêm đoạn code sau vào `main.ts`
+
+```ts
+// main.ts
+app.enableCors();
+```
+
+Trong một số trường hợp cách trên sẽ không sử dụng được, thì ta config như sau:
+
+```ts
+// main.ts
+app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+});
+```
+
+Trong đó `origin: '*'`, `*` cho phép bất kỳ địa chỉ nào cũng có thể kết nối tới (public)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
