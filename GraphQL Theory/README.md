@@ -1,5 +1,9 @@
 # GraphQL Theory
 
+<div align="center">
+<image src="https://github.com/user-attachments/assets/649218a6-de02-4618-a66b-2dad656112b6" height="300px" >
+</div>
+
 ## Mục lục
 - [1. So sánh GraphQL và REST API](#1-so-sánh-graphql-và-rest-api)
 - [2. Vấn đề mà REST API gặp phải là?](#2-vấn-đề-mà-rest-api-gặp-phải-là)
@@ -9,6 +13,9 @@
   - [4.2. Resolver](#42-resolver)
   - [4.3. Query Variables](#43-query-variables)
   - [4.4. Related Data](#44-related-data)
+  - [4.5. Mutation Data](#45-mutation-data)
+  - [4.6. Kết nối Database](#46-kết-nối-database)
+
 
 ## 1. So sánh GraphQL và REST API
 [:arrow_up: Mục lục](#mục-lục)
@@ -180,7 +187,7 @@ npm init -y
 npm pkg set type="module"
 ```
 
-Cài đặt package 
+Cài đặt package (Install)
 
 ```
 npm install @apollo/server graphql
@@ -748,3 +755,7 @@ Mutation: {
 _Kết quả_: Khi thực hiện update data
 
 ![image](https://github.com/user-attachments/assets/1b671338-4ab8-4e0b-9eff-e39f69ade88d)
+
+### 4.6. Kết nối Database
+[:arrow_up: Mục lục](#mục-lục)
+
