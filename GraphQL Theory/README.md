@@ -224,7 +224,7 @@ Các loại types chính của GraphQL:
 - [Union Types](#7-union-types)
 - [Interface Types](#8-interface-types)
 - [List Types](#9-list-types)
-- [Non-Null Types](#10-non--null-types)
+- [Non-Null Types](#10-non-null-types)
 
 Ta tạo ra file `schema.js` để định nghĩa schema GraphQL cho một ứng dụng, cụ thể là về Game, Review, và Author
 
@@ -254,6 +254,9 @@ export const typeDefs = `#graphql
 `;
 ```
 
+<details>
+  <summary>Các loại types chính của GraphQL</summary>
+  
 #### 1. Scalars (Kiểu nguyên thủy)
 [:arrow_up: Schema & Types](#41-schema--types)
 
@@ -427,6 +430,8 @@ type User {
 
 `id`: `ID!`: `id` luôn phải có giá trị.
 
+</details>
+
 ### 4.2. Resolver
 [:arrow_up: Mục lục](#mục-lục)
 
@@ -503,3 +508,20 @@ Xong đó khởi động server bằng `nodemon index.js` hoặc `node index.js`
 _Kết quả:_
 
 ![image](https://github.com/user-attachments/assets/ddd81e86-f621-41ab-8313-d947177c15df)
+
+Chúng ta muốn lấy ra một bài review có `id` bằng 4 thì phải làm sao?
+
+### 4.3. Query Variables
+[:arrow_up: Mục lục](#mục-lục)
+
+Query variables (Truyền tham số) sẽ giúp chúng ta lấy được thông tin chính xác của một bài review có `id` bằng 4
+
+```graphql
+type Query {
+  reviews: [Review]
+  review(id: ID!): Review
+  games: [Game]
+  authors: [Author]
+}
+```
+
