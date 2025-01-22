@@ -662,3 +662,89 @@ const resolvers = {
 _Kết quả:_
 
 ![image](https://github.com/user-attachments/assets/d03e20f8-5a7c-4ed1-9386-44bc897142f2)
+
+### 4.5. Mutation Data
+[:arrow_up: Mục lục](#mục-lục)
+
+**1. Delete & Add Data**
+
+Ta cần thêm vào file `schema.js` như sau để định nghĩa:
+
+```graphql
+type Mutation {
+  addGame(game: AddGameInput!): Game
+  deleteGame(id: ID!): [Game]
+}
+input AddGameInput {
+  title: String!
+  platform: [String!]!
+}
+```
+
+Tiếp theo ta cần thêm vào `const resolvers = {}` như sau để thực hiện hành động
+
+```js
+Mutation: {
+  deleteGame(_, args) {
+    db.games = db.games.filter((game) => game.id !== args.id);
+    return db.games;
+  },
+  addGame(_, args) {
+    let game = {
+      ...args.game,
+      id: Math.floor(Math.random() * 10000).toString(),
+    };
+    db.games.push(game);
+    return game;
+  },
+},
+```
+
+_Kết quả:_ Khi thực hiện delete data
+
+![image](https://github.com/user-attachments/assets/fb2a88a6-2403-4d67-aa22-f77a44a55086)
+
+_Kết quả:_ Khi thực hiện add data
+
+![image](https://github.com/user-attachments/assets/438e94ca-de01-4f58-9646-743d0e98b63e)
+
+**2. Update Data**
+
+Ta cần thêm vào file `schema.js` như sau để định nghĩa:
+
+```graphql
+type Mutation {
+  addGame(game: AddGameInput!): Game
+  deleteGame(id: ID!): [Game]
+  updateGame(id: ID!, edits: EditGameInput!): Game
+}
+input EditGameInput {
+  title: String
+  platform: [String!]
+}
+```
+
+Tiếp theo ta cần thêm vào `const resolvers = {}` như sau để thực hiện hành động update
+
+```js
+Mutation: {
+  updateGame(_, args) {
+    db.games = db.games.map((game) => {
+      if (game.id === args.id) {
+        return {
+          ...game,
+          ...args.edits,
+        };
+      }
+
+      return game;
+    });
+
+    return db.games.find((game) => game.id === args.id);
+  },
+},
+```
+
+_Kết quả_: Khi thực hiện update data
+
+![image](https://github.com/user-attachments/assets/1b671338-4ab8-4e0b-9eff-e39f69ade88d)
