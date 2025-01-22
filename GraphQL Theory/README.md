@@ -6,8 +6,10 @@
 - [3. Operations của GraphQL](#3-operations-của-graphql)
 - [4. Thiết lập Backend để hỗ trợ GraphQL Query (Apollo Server)](#4-thiết-lập-backend-để-hỗ-trợ-graphql-query-apollo-server)
   - [4.1. Schema & Types](#41-schema--types)
+  - [4.2. Resolver](#42-resolver)
 
 ## 1. So sánh GraphQL và REST API
+[:arrow_up: Mục lục](#mục-lục)
 
 | GraphQL | REST |
 | :-- | :-- |
@@ -167,6 +169,8 @@ Khi gửi request:
 ## 4. Thiết lập Backend để hỗ trợ GraphQL Query (Apollo Server)
 [:arrow_up: Mục lục](#mục-lục)
 
+Tham khảo tại đây: https://www.youtube.com/watch?v=5199E50O7SI
+
 Khởi tạo `package.json`, sử dụng `type="module"` thì Node.js hiểu rằng các file `.js` trong dự án là ESM. Với ESM, bạn sử dụng cú pháp `import` và `export` thay vì `require` và `module.exports`
 
 ```
@@ -184,19 +188,19 @@ Khởi động dự án với
 
 ```js
 // index.js
-import { ApolloServer } from `@apollo/server`
+import { ApolloServer } from "@apollo/server"
 import { startStandaloneServer } from "@apollo/server/standalone"
 
 // server setup
 const server = new ApolloServer({
-    // typeDefs
-    // resolvers
+  // typeDefs
+  // resolvers
 })
 
 const { url } = await startStandaloneServer(server, {
-    listen: {
-        port: 4000
-    }
+  listen: {
+      port: 4000
+  }
 })
 
 console.log('Server ready at port', 4000)
@@ -221,6 +225,34 @@ Các loại types chính của GraphQL:
 - [Interface Types](#8-interface-types)
 - [List Types](#9-list-types)
 - [Non-Null Types](#10-non--null-types)
+
+Ta tạo ra file `schema.js` để định nghĩa schema GraphQL cho một ứng dụng, cụ thể là về Game, Review, và Author
+
+```js
+// schema.js
+export const typeDefs = `#graphql
+  type Game {
+    id: ID!
+    title: String!
+    platform: [String!]!
+  }
+  type Review {
+    id: ID!
+    rating: Int!
+    content: String!
+  }
+  type Author {
+    id: ID!
+    name: String!
+    verified: Boolean!
+  }
+  type Query {
+    reviews: [Review]
+    games: [Game]
+    authors: [Author]
+  }
+`;
+```
 
 #### 1. Scalars (Kiểu nguyên thủy)
 [:arrow_up: Schema & Types](#41-schema--types)
@@ -310,14 +342,164 @@ type User {
 #### 6. Input Types
 [:arrow_up: Schema & Types](#41-schema--types)
 
+Input types được sử dụng để truyền dữ liệu vào các query hoặc mutation, đặc biệt khi cần truyền nhiều tham số.
+
+```graphql
+input UserInput {
+  name: String!
+  email: String!
+}
+```
+
+Sử dụng trong mutation:
+
+```graphql
+type Mutation {
+  addUser(input: UserInput!): User!
+}
+```
+
 #### 7. Union Types
 [:arrow_up: Schema & Types](#41-schema--types)
+
+Union types cho phép một field trả về một trong nhiều kiểu khác nhau.
+
+```graphql
+union SearchResult = User | Post
+```
+
+Sử dụng trong query:
+
+```graphql
+type Query {
+  search(keyword: String!): [SearchResult!]!
+}
+```
 
 #### 8. Interface Types
 [:arrow_up: Schema & Types](#41-schema--types)
 
+Interface định nghĩa các trường chung cho nhiều object types.
+
+```graphql
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String!
+}
+
+type Post implements Node {
+  id: ID!
+  title: String!
+}
+```
+
 #### 9. List Types
 [:arrow_up: Schema & Types](#41-schema--types)
 
+Danh sách (array) được biểu diễn bằng `[Type]`.
+
+```graphql
+type Query {
+  users: [User!]!
+}
+```
+
+`[User!]!`:
+
+- Danh sách không chứa giá trị `null`.
+- Danh sách này cũng không thể là `null`.
+
 #### 10. Non-Null Types
 [:arrow_up: Schema & Types](#41-schema--types)
+
+Ký hiệu `!` cho biết rằng một field bắt buộc phải có giá trị và không thể là `null`.
+
+```graphql
+type User {
+  id: ID!
+  name: String!
+}
+```
+
+`id`: `ID!`: `id` luôn phải có giá trị.
+
+### 4.2. Resolver
+[:arrow_up: Mục lục](#mục-lục)
+
+Ta sử dụng database example (dĩ nhiên chúng ta có thể sử dụng database bất kỳ) được lưu trong file `_db.js` như sau:
+
+```js
+let games = [
+  { id: "1", title: "Zelda, Tears of the Kingdom", platform: ["Switch"] },
+  { id: "2", title: "Final Fantasy 7 Remake", platform: ["PS5", "Xbox"] },
+  { id: "3", title: "Elden Ring", platform: ["PS5", "Xbox", "PC"] },
+  { id: "4", title: "Mario Kart", platform: ["Switch"] },
+  { id: "5", title: "Pokemon Scarlet", platform: ["PS5", "Xbox", "PC"] },
+];
+
+let authors = [
+  { id: "1", name: "mario", verified: true },
+  { id: "2", name: "yoshi", verified: false },
+  { id: "3", name: "peach", verified: true },
+];
+
+let reviews = [
+  { id: "1", rating: 9, content: "lorem ipsum", author_id: "1", game_id: "2" },
+  { id: "2", rating: 10, content: "lorem ipsum", author_id: "2", game_id: "1" },
+  { id: "3", rating: 7, content: "lorem ipsum", author_id: "3", game_id: "3" },
+  { id: "4", rating: 5, content: "lorem ipsum", author_id: "2", game_id: "4" },
+  { id: "5", rating: 8, content: "lorem ipsum", author_id: "2", game_id: "5" },
+  { id: "6", rating: 7, content: "lorem ipsum", author_id: "1", game_id: "2" },
+  { id: "7", rating: 10, content: "lorem ipsum", author_id: "3", game_id: "1" },
+];
+
+export default { games, authors, reviews };
+```
+
+Xong đó ta cần định nghĩa `resolvers`
+
+```js
+// index.js
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import db from "./_db.js";
+import { typeDefs } from "./schema.js";
+
+const resolvers = {
+  Query: {
+    games() {
+      return db.games;
+    },
+    authors() {
+      return db.authors;
+    },
+    reviews() {
+      return db.reviews;
+    },
+  },
+};
+
+// server setup
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+});
+
+const { url } = await startStandaloneServer(server, {
+  listen: {
+    port: 4000,
+  },
+});
+
+console.log("Server ready at port", 4000);
+```
+
+Xong đó khởi động server bằng `nodemon index.js` hoặc `node index.js`
+
+_Kết quả:_
+
+![image](https://github.com/user-attachments/assets/ddd81e86-f621-41ab-8313-d947177c15df)
