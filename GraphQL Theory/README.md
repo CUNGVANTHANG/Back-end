@@ -7,6 +7,8 @@
 - [4. Thiết lập Backend để hỗ trợ GraphQL Query (Apollo Server)](#4-thiết-lập-backend-để-hỗ-trợ-graphql-query-apollo-server)
   - [4.1. Schema & Types](#41-schema--types)
   - [4.2. Resolver](#42-resolver)
+  - [4.3. Query Variables](#43-query-variables)
+  - [4.4. Related Data](#44-related-data)
 
 ## 1. So sánh GraphQL và REST API
 [:arrow_up: Mục lục](#mục-lục)
@@ -516,6 +518,8 @@ Chúng ta muốn lấy ra một bài review có `id` bằng 4 thì phải làm s
 
 Query variables (Truyền tham số) sẽ giúp chúng ta lấy được thông tin chính xác của một bài review có `id` bằng 4
 
+Trong file `schema.js` ta cần thêm `review(id: ID!): Review`
+
 ```graphql
 type Query {
   reviews: [Review]
@@ -525,3 +529,136 @@ type Query {
 }
 ```
 
+Trong file `index.js` thêm `review(_, args)`
+
+```js
+const resolvers = {
+  Query: {
+    games() {
+      return db.games;
+    },
+    authors() {
+      return db.authors;
+    },
+    reviews() {
+      return db.reviews;
+    },
+    review(_, args) {
+      return db.reviews.find((review) => review.id === args.id);
+    },
+  },
+};
+```
+
+_Kết quả:_
+
+![image](https://github.com/user-attachments/assets/14fdf9f1-2727-47c1-a97e-aa4daad6cadd)
+
+### 4.4. Related Data
+[:arrow_up: Mục lục](#mục-lục)
+
+Related Data trong GraphQL đề cập đến việc truy xuất dữ liệu liên quan từ nhiều đối tượng có quan hệ với nhau.
+Hiểu đơn giản theo ví dụ sau:
+
+```js
+let games = [
+  { id: "1", title: "Zelda, Tears of the Kingdom", platform: ["Switch"] },
+  { id: "2", title: "Final Fantasy 7 Remake", platform: ["PS5", "Xbox"] },
+  { id: "3", title: "Elden Ring", platform: ["PS5", "Xbox", "PC"] },
+  { id: "4", title: "Mario Kart", platform: ["Switch"] },
+  { id: "5", title: "Pokemon Scarlet", platform: ["PS5", "Xbox", "PC"] },
+];
+
+let reviews = [
+  { id: "1", rating: 9, content: "lorem ipsum", author_id: "1", game_id: "2" },
+  { id: "2", rating: 10, content: "lorem ipsum", author_id: "2", game_id: "1" },
+  { id: "3", rating: 7, content: "lorem ipsum", author_id: "3", game_id: "3" },
+  { id: "4", rating: 5, content: "lorem ipsum", author_id: "2", game_id: "4" },
+  { id: "5", rating: 8, content: "lorem ipsum", author_id: "2", game_id: "5" },
+  { id: "6", rating: 7, content: "lorem ipsum", author_id: "1", game_id: "2" },
+  { id: "7", rating: 10, content: "lorem ipsum", author_id: "3", game_id: "1" },
+];
+```
+
+Tôi muốn lấy dữ liệu từ bảng reviews có `id: "1"` bao gồm `rating: 9`, ```content: "lorem ipsum"``` và ```title: "Final Fantasy 7 Remake"```, ```platform: ["PS5", "Xbox"]``` từ bảng games theo ```game_id: "2"```
+
+Ta cần thêm `reviews: [Review!]` vào `Game` và `Author`, đồng thời thêm `game: Game!` và `author: Author!` vào `Review`
+
+```js
+// schema.js
+export const typeDefs = `#graphql
+  type Game {
+    id: ID!
+    title: String!
+    platform: [String!]!
+    reviews: [Review!]
+  }
+  type Review {
+    id: ID!
+    rating: Int!
+    content: String!
+    game: Game!
+    author: Author!
+  }
+  type Author {
+    id: ID!
+    name: String!
+    verified: Boolean!
+    reviews: [Review!]
+  }
+  type Query {
+    games: [Game]
+    game(id: ID!): Game
+    reviews: [Review]
+    review(id: ID!): Review
+    authors: [Author]
+    author(id: ID!): Author
+  }
+`;
+```
+
+Tiếp ta cần thêm 
+
+```
+Game: {
+  reviews(game) {
+    return db.reviews.filter((review) => review.game_id === game.id);
+  },
+},
+```
+
+vào trong resolvers giúp lấy thông tin từ bảng khác dựa vào `id`
+
+```js
+const resolvers = {
+  Query: {
+    games() {
+      return db.games;
+    },
+    game(_, args) {
+      return db.games.find((game) => game.id === args.id);
+    },
+    authors() {
+      return db.authors;
+    },
+    author(_, args) {
+      return db.authors.find((author) => author.id === args.id);
+    },
+    reviews() {
+      return db.reviews;
+    },
+    review(_, args) {
+      return db.reviews.find((review) => review.id === args.id);
+    },
+  },
+  Game: {
+    reviews(game) {
+      return db.reviews.filter((review) => review.game_id === game.id);
+    },
+  },
+};
+```
+
+_Kết quả:_
+
+![image](https://github.com/user-attachments/assets/d03e20f8-5a7c-4ed1-9386-44bc897142f2)
