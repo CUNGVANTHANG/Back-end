@@ -21,7 +21,7 @@ Other:
 
 Tạo project trên https://cloud.mongodb.com/
 
-<image src="https://github.com/user-attachments/assets/01d02c14-0401-4fb2-a5c3-a25b6f762dd7" height="300px" >
+<image src="https://github.com/user-attachments/assets/01d02c14-0401-4fb2-a5c3-a25b6f762dd7" height="500px" >
 
 Xong đó sử dụng và được lưu trong `.env`
 
@@ -46,3 +46,29 @@ export const connectDB = async () => {
 
 **2. Cloudinary**
 
+Truy cập vào trang https://console.cloudinary.com/
+
+Sau đó copy nội dung này
+
+![image](https://github.com/user-attachments/assets/893722d3-e879-42f1-8dfa-af2480adbc39)
+
+Lưu vào biến môi trường `.env`
+
+```
+CLOUDINARY_CLOUD_NAME="dlgkf0o6d"
+```
+
+Sau đó vào **Settings**
+
+![image](https://github.com/user-attachments/assets/72ba4966-708c-437e-b181-0d864f9c13a8)
+
+Sau đó chọn **Generate New API Key**. Vào gmail lấy code để **Approve**
+
+![image](https://github.com/user-attachments/assets/6e1373f4-52db-4831-beda-c35fea76fee1)
+
+Sau đó lấy API KEY và API SECRET
+
+```
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+```
