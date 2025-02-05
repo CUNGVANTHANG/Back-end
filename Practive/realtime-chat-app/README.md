@@ -25,7 +25,7 @@ Tạo project trên https://cloud.mongodb.com/
 
 Xong đó sử dụng và được lưu trong `.env`
 
-```
+```env
 MONGODB_URI="mongodb+srv://cungvanthang2k3:<db_password>@cluster0.cnmcm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 ```
 
@@ -54,7 +54,7 @@ Sau đó copy nội dung này
 
 Lưu vào biến môi trường `.env`
 
-```
+```env
 CLOUDINARY_CLOUD_NAME="dlgkf0o6d"
 ```
 
@@ -68,7 +68,58 @@ Sau đó chọn **Generate New API Key**. Vào gmail lấy code để **Approve*
 
 Sau đó lấy API KEY và API SECRET
 
-```
+```env
 CLOUDINARY_API_KEY=""
 CLOUDINARY_API_SECRET=""
+```
+
+Sử dụng như sau:
+
+Đầu tiên ta cần phải config
+
+```js
+// cloudinary.js
+import { v2 as cloudinary } from "cloudinary";
+import { config } from "dotenv";
+
+config();
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+export default cloudinary;
+```
+
+Tiếp theo để sử dụng ta dùng `cloudinary.uploader.upload(profilePic)` để upload ảnh lên cloudinary và nhận về một đường link url
+
+```js
+export const updateProfile = async (req, res) => {
+  try {
+    // Lấy profilePic từ body của request
+    const { profilePic } = req.body;
+    const userId = req.user._id;
+
+    if (!profilePic) {
+      return res.status(400).json({ message: "Profile picture is required" });
+    }
+
+    // Upload ảnh lên Cloudinary
+    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+
+    // Cập nhật profilePic cho user
+    const updateUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePic: uploadResponse.secure_url },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Update profile successfully" });
+  } catch (error) {
+    console.log("Error in updateProfile: ", error.message);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 ```
