@@ -16,7 +16,7 @@ Có nhiều phương thức xác thực (authentication) khác nhau, tùy thuộ
 
 **6. Certificate-based Authentication (Xác thực bằng chứng chỉ số)**: Dùng chứng chỉ số (digital certificate) để xác thực người dùng hoặc thiết bị.
 
-**7. Social Authentication (Xác thực qua tài khoản mạng xã hội)**: Hệ thống sử dụng OAuth 2.0 để lấy thông tin từ mạng xã hội.
+**7. SSO (Single Sign-On)**: Hệ thống sử dụng OAuth 2.0 để lấy thông tin từ mạng xã hội.
 
 ## 2. Sự khác nhau authentication và authorization
 
