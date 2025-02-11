@@ -59,6 +59,8 @@ Sau khi dùng `compression`: Size là 995 B
 ## 2. Connect mongodb
 [:arrow_up: Mục lục](#mục-lục)
 
+[Source code tại đây](./connect_mongodb/)
+
 **1. Vấn đề connect mongodb trong node.js**
 
 Cách connect mongodb trong node.js thường xuyên được sử dụng hiện nay.
@@ -176,3 +178,32 @@ const checkOverload = () => {
 
 export { checkOverload };
 ```
+
+**4. Có nên `disconnect()` liên tục trong node.js hay không?**
+
+Ở một số ngôn ngữ khác (như Java, C#) bạn có thể có mô hình quản lý kết nối theo kiểu "mở-kết nối, thực hiện giao dịch, đóng kết nối" cho mỗi giao dịch. Tuy nhiên, trong Node.js, với tính chất của ứng dụng event-driven và server chạy liên tục, mô hình này không được áp dụng vì sẽ gây tốn kém tài nguyên và không hiệu quả. Việc giữ kết nối này sẽ giúp giảm overhead của việc mở và đóng kết nối liên tục, đồng thời tận dụng cơ chế connection pooling để cải thiện hiệu năng
+
+Khi một ứng dụng cần giao tiếp với MongoDB, thay vì mở và đóng kết nối liên tục cho mỗi truy vấn (việc này tốn thời gian và tài nguyên), ứng dụng sẽ tạo ra một connection pool – một tập hợp các kết nối đã được mở sẵn. Khi có một truy vấn, một kết nối từ pool sẽ được cấp phát để xử lý yêu cầu đó và sau khi hoàn thành, kết nối sẽ được trả lại pool để sử dụng cho các truy vấn tiếp theo.
+
+Thay vì đóng kết nối sau mỗi thao tác, bạn chỉ nên thực hiện đóng kết nối (disconnect) khi server tắt hoặc khi bạn thực hiện một quá trình shutdown một cách "graceful". Ví dụ, trong sự kiện `SIGINT` (Ctrl+C), bạn có thể gọi `mongoose.disconnect()` để đảm bảo rằng tất cả kết nối đến MongoDB được đóng một cách an toàn
+
+**5. PoolSize là gì. Vì sao nó lại quan trọng?**
+
+PoolSize chính là số lượng kết nối tối đa mà pool này có thể giữ cùng lúc.
+
+Nếu có nhiều truy vấn đến cùng lúc, và số lượng truy vấn vượt quá số lượng kết nối có sẵn trong pool, các truy vấn đó sẽ phải chờ cho đến khi có kết nối được trả lại từ pool.
+
+Cấu hình pool size hợp lý giúp cân bằng giữa hiệu năng (xử lý nhiều truy vấn đồng thời) và tài nguyên hệ thống (tránh mở quá nhiều kết nối không cần thiết).
+
+**6. Nếu vượt quá kết nối PoolSize?**
+
+_Ví dụ_: 
+
+Nếu cấu hình maxPoolSize là 50, thì pool sẽ chỉ giữ tối đa 50 kết nối mở đồng thời. Trong trường hợp có 51 truy vấn cùng lúc:
+
+- **Kết nối thứ 51 sẽ không được mở ngay lập tức mà sẽ được đặt vào hàng đợi**.
+- Khi một trong 50 kết nối hiện có hoàn thành công việc và được trả lại pool, kết nối thứ 51 sẽ được cấp phát để xử lý truy vấn của nó.
+
+Như vậy, các truy vấn vượt quá giới hạn pool sẽ phải chờ cho đến khi có kết nối trống trong pool để thực hiện.
+
+
