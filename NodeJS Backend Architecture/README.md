@@ -3,6 +3,8 @@
 ## Mục lục
 
 - [1. Init project](#1-init-project)
+- [2. Connect mongoDB](#2-connect-mongodb)
+- [3. Cách kết hợp env và configs cho dự án nhiều môi trường](#3-cách-kết-hợp-env-và-configs-cho-dự-án-nhiều-môi-trường)
 
 ## 1. Init project
 [:arrow_up: Mục lục](#mục-lục)
@@ -206,4 +208,50 @@ Nếu cấu hình maxPoolSize là 50, thì pool sẽ chỉ giữ tối đa 50 k�
 
 Như vậy, các truy vấn vượt quá giới hạn pool sẽ phải chờ cho đến khi có kết nối trống trong pool để thực hiện.
 
+## 3. Cách kết hợp env và configs cho dự án nhiều môi trường
+[:arrow_up: Mục lục](#mục-lục)
+
+[Source code tại đây](./env_configs/)
+
+Trong thư mục `/configs`
+
+```js
+"use strict";
+
+const dev = {
+  app: {
+    post: process.env.DEV_APP_POST || 3052,
+  },
+  db: {
+    host: process.env.DEV_DB_HOST || "localhost",
+    port: process.env.DEV_DB_PORT || 27017,
+    name: process.env.DEV_DB_NAME || "dev_db",
+  },
+};
+
+const pro = {
+  app: {
+    post: process.env.PRO_APP_POST || 3052,
+  },
+  db: {
+    host: process.env.PRO_DB_HOST || "localhost",
+    port: process.env.PRO_DB_PORT || 27017,
+    name: process.env.PRO_DB_NAME || "pro_db",
+  },
+};
+
+const config = { dev, pro };
+const env = process.env.NODE_ENV || "dev";
+export default config[env];
+```
+
+Để có thể sử dụng ta import như sau:
+
+```js
+import mongoose from "mongoose";
+import config from "./configs/config.mongodb.js";
+
+const { host, port, name } = config.db;
+const connectString = `mongodb://${host}:${port}/${name}`;
+```
 
