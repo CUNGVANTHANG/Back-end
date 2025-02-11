@@ -2,7 +2,7 @@
 
 ## 1. Init project
 
-[Source code tại đây](/init__project)
+[Source code tại đây](/init_project/)
 
 Những folder và package cần thiết cần thiết khi khởi tạo dự án
 
