@@ -22,10 +22,11 @@
 
 | GraphQL | REST |
 | :-- | :-- |
-| Nó chỉ là 1 ngôn ngữ truy vấn APIs | Là 1 khái niệm, 1 loại kiến trúc mà định nghĩa 1 số ràng buộc, quy tắc cần tuân theo khi thiết kế web services | 
-| Chỉ deploy 1 endpoint duy nhất và client có thể quyết định lấy những dữ liệu nào cần thiết | Deploy nhiều endpoints và mỗi endpoint thông thường sẽ trả về 1 resource duy nhất (VD như /api/v1/users sẽ trả về danh sách users, /books sẽ trả về danh sách books... |
+| Nó chỉ là 1 **ngôn ngữ truy vấn APIs** | Là 1 khái niệm, 1 loại kiến trúc mà định nghĩa 1 số ràng buộc, quy tắc cần tuân theo khi thiết kế web services | 
+| **Chỉ deploy 1 endpoint duy nhất** và client có thể quyết định lấy những dữ liệu nào cần thiết | **Deploy nhiều endpoints** và mỗi endpoint thông thường sẽ trả về 1 resource duy nhất (VD như /api/v1/users sẽ trả về danh sách users, /books sẽ trả về danh sách books... |
+| Query (lấy dữ liệu), Mutation (thay đổi dữ liệu), Subscription (lắng nghe thay đổi) |  GET, POST, PUT, DELETE, PATCH |
 | Sử dụng kiến trúc hướng tới phía client | Sử dụng kiến trúc hướng tới phía server | 
-| Không có cơ chế caching được tính hợp sẵn mà phải sử dụng các thư viện bên ngoài | Có tính năng caching mặc định |
+| **Không có cơ chế caching** được tính hợp sẵn mà phải sử dụng các thư viện bên ngoài | **Có tính năng caching** mặc định |
 | Không hỗ trợ API versioning  | Hỗ trợ API versioning | 
 | Dữ liệu trả về chỉ có JSON | Dữ liệu trả về có thể XML, JSON và YAML | 
 | Có hệ thống định nghĩa kiểu dữ liệu rõ ràng và documents sẽ được tạo tự động | Không có |
@@ -35,6 +36,7 @@
 Sử dụng extension trong Visual Studio Code là **GraphQL: Syntax Highlighting**
 
 ![image](https://github.com/user-attachments/assets/907a13cd-a662-4008-b454-e0ca5d597986)
+
 
 ## 2. Vấn đề mà REST API gặp phải là?
 [:arrow_up: Mục lục](#mục-lục)
