@@ -1030,6 +1030,157 @@ Ta có thể hiểu là từ config để kết nối, xong xây dựng model đ
 ## II. CRUD
 [:arrow_up: Mục lục](#mục-lục)
 
+Xây dựng một RESTful API đơn giản sử dụng Node.js, Express và MongoDB (Mongoose) để thực hiện các thao tác **CRUD (Create, Read, Update, Delete)**.
+
+### 1. Khởi tạo Project
+
+```bash
+mkdir node-crud-api
+cd node-crud-api
+npm init -y
+npm install express mongoose dotenv
+```
+
+### 2. Tạo cấu trúc thư mục
+
+```
+node-crud-api/
+│
+├── models/
+│   └── User.js
+│
+├── routes/
+│   └── userRoutes.js
+│
+├── .env
+├── server.js
+```
+
+### 3. Cấu hình môi trường `.env`
+
+```env
+PORT=3000
+MONGODB_URI=mongodb://localhost:27017/crud_db
+```
+
+### 4. Kết nối MongoDB và tạo server (server.js)
+
+```js
+const express = require('express');
+const mongoose = require('mongoose');
+require('dotenv').config();
+
+const app = express();
+
+// Middleware
+app.use(express.json());
+
+// Routes
+const userRoutes = require('./routes/userRoutes');
+app.use('/api/users', userRoutes);
+
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.log(err));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+```
+
+### 5. Tạo model User (models/User.js)
+
+```js
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  age: Number
+}, { timestamps: true });
+
+module.exports = mongoose.model('User', userSchema);
+```
+
+### 6. Tạo CRUD routes (routes/userRoutes.js)
+
+```js
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+
+// CREATE
+router.post('/', async (req, res) => {
+  try {
+    const user = await User.create(req.body);
+    res.status(201).json(user);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// READ ALL
+router.get('/', async (req, res) => {
+  const users = await User.find();
+  res.json(users);
+});
+
+// READ ONE
+router.get('/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// UPDATE
+router.put('/:id', async (req, res) => {
+  try {
+    const updated = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ error: 'User not found' });
+    res.json(updated);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// DELETE
+router.delete('/:id', async (req, res) => {
+  try {
+    const deleted = await User.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'User not found' });
+    res.json({ message: 'User deleted' });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+module.exports = router;
+```
+
+### 7. Chạy ứng dụng
+
+```bash
+node server.js
+```
+
+API sẽ chạy tại: http://localhost:3000/api/users
+
+### 8. Test API bằng Postman hoặc curl
+
+- **POST /api/users**: Tạo user mới
+- **GET /api/users**: Lấy danh sách user
+- **GET /api/users/:id**: Lấy chi tiết user
+- **PUT /api/users/:id**: Cập nhật user
+- **DELETE /api/users/:id**: Xoá user
 
 ## III. Middleware
 [:arrow_up: Mục lục](#mục-lục)
